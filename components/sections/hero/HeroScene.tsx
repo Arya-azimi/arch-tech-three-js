@@ -78,14 +78,14 @@ function CameraRig({
 
   const progress = useRef(reducedMotion ? 1 : 0);
 
-  // 1. نقطه شروع: دوربینی که اول لود سایت در فاصله دور قرار دارد[cite: 4]
+  // 1. نقطه شروع: دوربینی که اول لود سایت در فاصله دور قرار دارد
   const start = useRef(new THREE.Vector3(12, 4, 12));
 
-  // 2. نقطه پایان: ارتفاع روی 1.5 تنظیم شده تا زیر سقف مدل قرار گیرد و Z روی 6 برای دید ایده‌آل[cite: 4]
-  const end = useRef(new THREE.Vector3(6, 1.5, 6));
+  // 2. نقطه پایان (داخل اتاق): مختصاتی که دوربین به عنوان نمای نهایی داخل اتاق می‌ایستد
+  const end = useRef(new THREE.Vector3(2.2, 1.2, 3.8));
 
-  // 3. نقطه نگاه (مرکز مدل): تمرکز روی مبلمان و فضای داخلی (ارتفاع 0.5)[cite: 4]
-  const lookTarget = useRef(new THREE.Vector3(0, 0.5, 0));
+  // 3. نقطه نگاه (مرکز تمرکز داخل اتاق): سمتی که دوربین به آن خیره می‌شود (سمت مبل‌ها و دیوار روبرو)
+  const lookTarget = useRef(new THREE.Vector3(-0.5, 1.0, 0));
 
   const introCompleteRef = useRef(introComplete);
 
@@ -190,11 +190,10 @@ export default function HeroScene({
           enablePan={isExploring}
           enableZoom={isExploring}
           minPolarAngle={0}
-          // محدودیت زاویه برای جلوگیری از دید زیر زمین مدل[cite: 4]
           maxPolarAngle={Math.PI / 2 - 0.05}
           minDistance={1}
           maxDistance={12}
-          target={[0, 0.5, 0]}
+          target={[-0.5, 1.0, 0]} // هماهنگ با lookTarget دوربین
         />
       )}
     </Canvas>

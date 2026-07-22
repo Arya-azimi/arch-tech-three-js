@@ -103,10 +103,10 @@ export default function Hero() {
         data-lenis-prevent="true"
         onWheel={(e) => isExploring && e.stopPropagation()}
         onTouchMove={(e) => isExploring && e.stopPropagation()}
-        className={`origin-top will-change-transform transition-all duration-700 ${
+        className={`origin-top will-change-transform transition-all duration-700 bg-[linear-gradient(253deg,#ededed_0%,#ffffff_50%,#cfcfcf_100%)] ${
           isExploring
-            ? "fixed inset-0 z-50 scale-100 rounded-none opacity-100 bg-transparent"
-            : "absolute inset-0 z-0 overflow-hidden bg-transparent"
+            ? "fixed inset-0 z-50 scale-100 rounded-none opacity-100"
+            : "absolute inset-0 z-0 overflow-hidden"
         }`}
       >
         <Suspense fallback={<SceneLoader />}>
