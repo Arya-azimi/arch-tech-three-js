@@ -88,22 +88,22 @@ export default function HorizontalGallery() {
     <div className="relative w-full max-w-[100vw]">
       <section
         ref={sectionRef}
-        className="relative h-screen w-full overflow-hidden bg-[#0a0a0a]"
+        className="relative h-screen w-full overflow-hidden bg-[var(--background)]"
       >
         <div
           ref={scrollRef}
           className="flex h-full w-max flex-nowrap items-center gap-6 px-6 md:gap-8 md:px-16"
         >
           <div className="flex w-[85vw] shrink-0 flex-col justify-center pr-4 md:w-[35vw]">
-            <p className="mb-6 font-mono text-xs uppercase tracking-[0.3em] text-white/50">
+            <p className="mb-6 font-mono text-xs uppercase tracking-[0.3em] ">
               Selected Works
             </p>
-            <h2 className="mb-8 font-serif text-5xl leading-[1.1] text-white md:text-7xl">
+            <h2 className="mb-8 font-serif text-5xl leading-[1.1] md:text-7xl">
               Projects that hold
               <br />
               the light.
             </h2>
-            <p className="font-mono text-xs uppercase tracking-widest text-white/40">
+            <p className="font-mono text-xs uppercase tracking-widest ">
               Drag or scroll horizontally &rarr;
             </p>
           </div>

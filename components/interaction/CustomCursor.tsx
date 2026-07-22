@@ -92,7 +92,7 @@ export default function CustomCursor() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[9999] hidden md:block"
+      className="pointer-events-none fixed inset-0 z-[9999] hidden md:block mix-blend-difference"
     >
       <div
         ref={ringRef}
