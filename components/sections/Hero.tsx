@@ -40,7 +40,7 @@ export default function Hero() {
   }, [isExploring, stop, start]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
+    <section className="relative h-screen w-full overflow-hidden bg-[#e3c2a1] bg-[radial-gradient(circle,rgba(227,194,161,0.78)_0%,rgba(212,177,171,0.62)_100%)]">
       <div className="absolute inset-0 h-full w-full">
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
