@@ -4,7 +4,7 @@
 import { Suspense, useEffect, useState } from "react";
 import HeroScene from "@/components/sections/hero/HeroScene";
 import RoomControls from "@/components/sections/hero/RoomControls";
-import { useUIStore } from "@/lib/store";
+import { useRoomStore, useUIStore } from "@/lib/store";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 function SceneLoader() {
@@ -23,6 +23,7 @@ function SceneLoader() {
 export default function Hero() {
   const [isExploring, setIsExploring] = useState(false);
   const isLoaded = useUIStore((s) => s.isLoaded);
+  const introComplete = useRoomStore((s) => s.introComplete);
   const { stop, start } = useSmoothScroll();
 
   useEffect(() => {
@@ -40,11 +41,25 @@ export default function Hero() {
   }, [isExploring, stop, start]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#e3c2a1] bg-[radial-gradient(circle,rgba(227,194,161,0.78)_0%,rgba(212,177,171,0.62)_100%)]">
+    <section className="relative h-screen w-full overflow-hidden bg-neutral-200">
       <div className="absolute inset-0 h-full w-full">
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
         </Suspense>
+      </div>
+
+      {/* متون داینامیک با قابلیت mix-blend-difference */}
+      <div
+        className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-1000 mix-blend-difference ${
+          introComplete && !isExploring ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <h1 className="font-serif text-6xl tracking-tight text-white md:text-8xl">
+          Arch Tech
+        </h1>
+        <p className="mt-4 font-mono text-xs uppercase tracking-[0.3em] text-white/80 md:text-sm">
+          Elevating Modern Spaces
+        </p>
       </div>
 
       {isLoaded && (
