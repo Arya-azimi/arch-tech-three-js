@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextReveal from "@/components/interaction/TextReveal";
-import RoomControls from "@/components/sections/hero/RoomControls";
 import HeroIntro from "@/components/sections/hero/HeroIntro";
 import HeroScene from "@/components/sections/hero/HeroScene";
 import { useUIStore } from "@/lib/store";
@@ -13,12 +12,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 function SceneLoader() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#e9e5dd]">
-      <span
-        className="animate-pulse font-mono text-sm text-black/50"
-        style={{ fontFamily: "monospace" }}
-      >
-        Building your space…
+    <div className="flex h-full w-full items-center justify-center bg-transparent">
+      <span className="animate-pulse font-mono text-sm text-white/50">
+        Loading spatial assets…
       </span>
     </div>
   );
@@ -29,6 +25,9 @@ export default function Hero() {
   const mediaRef = useRef<HTMLDivElement>(null);
   const uiRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
+
+  // استیت جدید برای مدیریت حالت کاوش در مدل سه‌بعدی
+  const [isExploring, setIsExploring] = useState(false);
 
   useEffect(() => {
     if (
@@ -75,24 +74,31 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#0a0a0a]"
+      // بک‌گراند مشکی حذف شد تا رنگ خود بوم سه‌بعدی دیده شود
+      className="relative overflow-hidden bg-transparent"
       style={{ height: "100svh", width: "100%" }}
     >
       <div
         ref={mediaRef}
-        className="absolute inset-0 origin-top overflow-hidden will-change-transform"
+        // وقتی کاربر در حال کاوش است، لایه سه‌بعدی بالاترین اولویت را می‌گیرد
+        className={`absolute inset-0 origin-top overflow-hidden will-change-transform transition-all duration-700 ${
+          isExploring ? "z-50 scale-100 rounded-none opacity-100" : "z-0"
+        }`}
       >
         <Suspense fallback={<SceneLoader />}>
-          <HeroScene />
+          <HeroScene isExploring={isExploring} />
         </Suspense>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/30" />
+        {/* لایه‌های هاله تیره به طور کامل حذف شدند */}
       </div>
 
       <HeroIntro />
 
+      {/* رابط کاربری (متن‌ها) - وقتی وارد حالت کاوش می‌شویم محو می‌شود */}
       <div
         ref={uiRef}
-        className="pointer-events-none absolute inset-0 z-10 will-change-transform"
+        className={`pointer-events-none absolute inset-0 z-10 will-change-transform transition-opacity duration-500 ${
+          isExploring ? "opacity-0" : "opacity-100"
+        }`}
       >
         <div className="absolute inset-0 flex flex-col justify-start px-8 pt-[16vh] md:px-16">
           <p className="mb-6 text-xs uppercase tracking-[0.4em] text-white/80">
@@ -114,9 +120,46 @@ export default function Hero() {
             className="mt-6 max-w-xl text-base leading-relaxed text-white/85 drop-shadow-[0_1px_10px_rgba(0,0,0,0.4)]"
           />
         </div>
-
-        <RoomControls />
       </div>
+
+      {/* دکمه ورود به حالت کاوش */}
+      <button
+        onClick={() => setIsExploring(!isExploring)}
+        className="absolute bottom-8 right-8 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md transition-transform hover:scale-110 active:scale-95 md:bottom-12 md:right-12"
+        aria-label={isExploring ? "Exit explore mode" : "Explore 3D model"}
+      >
+        {isExploring ? (
+          // آیکون X (بستن)
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        ) : (
+          // آیکون ذره‌بین (کاوش)
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        )}
+      </button>
     </section>
   );
 }

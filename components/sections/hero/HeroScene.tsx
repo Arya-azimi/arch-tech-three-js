@@ -2,29 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, ContactShadows, OrbitControls } from "@react-three/drei";
+import { Environment, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import Room from "@/components/sections/hero/Room";
 import { useRoomStore, useUIStore } from "@/lib/store";
 
-/* ------------------------------------------------------------------ */
-/*  WebGL fallback                                                     */
-/* ------------------------------------------------------------------ */
-
 function canCreateWebGLContext() {
   if (typeof window === "undefined") return false;
-
   try {
     const canvas = document.createElement("canvas");
     const gl = (canvas.getContext("webgl2") ??
-      canvas.getContext("webgl") ??
-      canvas.getContext("experimental-webgl")) as
-      | WebGL2RenderingContext
-      | WebGLRenderingContext
-      | null;
-
+      canvas.getContext("webgl")) as WebGLRenderingContext | null;
     if (!gl) return false;
-
     const loseContext = gl.getExtension("WEBGL_lose_context");
     loseContext?.loseContext();
     return true;
@@ -33,39 +22,29 @@ function canCreateWebGLContext() {
   }
 }
 
-// فالبک برای زمانی که کارت گرافیک توان رندر ندارد
 function HeroSceneFallback({
   completeIntro = true,
 }: {
   completeIntro?: boolean;
 }) {
   const setIntroComplete = useRoomStore((s) => s.setIntroComplete);
-
   useEffect(() => {
-    if (!completeIntro) return;
-    setIntroComplete(true);
+    if (completeIntro) setIntroComplete(true);
   }, [completeIntro, setIntroComplete]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#e9e5dd] flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#fdfbf7] to-[#dcd8ce]" />
-
-      <div className="z-10 text-center px-6">
-        <h2 className="font-serif text-2xl md:text-4xl text-[#3a3228] mb-4">
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-transparent">
+      <div className="z-10 px-6 text-center">
+        <h2 className="mb-4 font-serif text-2xl text-white/80 md:text-4xl">
           Experience the Space
         </h2>
-        <p className="font-mono text-sm md:text-base text-[#5a4f40] max-w-md mx-auto leading-relaxed">
-          3D rendering is currently unavailable on this device. Please try a
-          different browser or device for the full interactive experience.
+        <p className="mx-auto max-w-md font-mono text-sm leading-relaxed text-white/50 md:text-base">
+          3D rendering is currently unavailable on this device.
         </p>
       </div>
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Shared pointer                                                     */
-/* ------------------------------------------------------------------ */
 
 function useSharedPointer() {
   const pointer = useRef({ x: 0, y: 0 });
@@ -80,24 +59,16 @@ function useSharedPointer() {
   return pointer;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Easing                                                             */
-/* ------------------------------------------------------------------ */
-
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Camera rig                                                         */
-/* ------------------------------------------------------------------ */
-
 function CameraRig({
   pointer,
-  controlsEnabled,
+  isCinematic,
 }: {
   pointer: React.RefObject<{ x: number; y: number }>;
-  controlsEnabled: boolean;
+  isCinematic: boolean;
 }) {
   const { camera } = useThree();
   const introComplete = useRoomStore((s) => s.introComplete);
@@ -134,8 +105,8 @@ function CameraRig({
       return;
     }
 
-    // حرکت سینماتیک نرم با موس وقتی کاربر درگ نمی‌کند
-    if (!controlsEnabled) {
+    // حرکت سینماتیک موس فقط زمانی اعمال می‌شود که کاربر در حال اسکرول یا حالت عادی است (نه اکسپلور)
+    if (isCinematic) {
       const p = pointer.current ?? { x: 0, y: 0 };
       const tx = end.current.x + p.x * 0.8;
       const ty = end.current.y - p.y * 0.5;
@@ -148,11 +119,11 @@ function CameraRig({
   return null;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Canvas                                                             */
-/* ------------------------------------------------------------------ */
-
-export default function HeroScene() {
+export default function HeroScene({
+  isExploring = false,
+}: {
+  isExploring?: boolean;
+}) {
   const pointer = useSharedPointer();
   const introComplete = useRoomStore((s) => s.introComplete);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
@@ -162,45 +133,29 @@ export default function HeroScene() {
     setWebGLAvailable(canCreateWebGLContext());
   }, []);
 
-  if (webGLAvailable === null) {
+  if (webGLAvailable === null)
     return <HeroSceneFallback completeIntro={false} />;
-  }
-
-  if (!webGLAvailable) {
-    return <HeroSceneFallback />;
-  }
+  if (!webGLAvailable) return <HeroSceneFallback />;
 
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
       camera={{ position: [12, 1.2, 12], fov: 38 }}
-      // powerPreference برای مدیریت بهتر منابع روی سیستم‌های بدون گرافیک مجزا
-      gl={{
-        antialias: true,
-        alpha: false,
-        powerPreference: "high-performance",
-      }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       fallback={<HeroSceneFallback />}
-      onError={(e) => {
-        console.error("WebGL Error:", e);
-        setWebGLAvailable(false);
-      }}
+      onError={() => setWebGLAvailable(false)}
       onCreated={({ gl, scene }) => {
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
         gl.toneMapping = THREE.ACESFilmicToneMapping;
-        // رنگ پس‌زمینه که با محیط سه‌بعدی هارمونی داشته باشد
-        scene.background = new THREE.Color("#0a0a0a");
       }}
     >
-      {/* نورپردازی محیطی واقع‌گرایانه به جای نورهای ساده و تخت قبلی */}
       <Environment
         preset="apartment"
         environmentIntensity={1.2}
         background={false}
       />
 
-      {/* یک نور جهت‌دار ملایم صرفاً برای ایجاد سایه نرم زیر مدل */}
       <directionalLight
         position={[6, 9, 4]}
         intensity={0.8}
@@ -212,31 +167,25 @@ export default function HeroScene() {
 
       <Room pointer={pointer} />
 
-      {/* سایه تماس زیر مدل برای اینکه حس شود روی زمین قرار دارد */}
-      <ContactShadows
-        position={[0, 0.01, 0]}
-        opacity={0.6}
-        scale={20}
-        blur={2}
-        far={4}
-        resolution={512}
-        color="#000000"
+      {/* ContactShadows حذف شد تا هاله تیره ایجاد نشود */}
+
+      <CameraRig
+        pointer={pointer}
+        isCinematic={introComplete && !isExploring}
       />
 
-      <CameraRig pointer={pointer} controlsEnabled={introComplete} />
-
-      {/* کنترلر موس برای چرخیدن دور مدل */}
       {introComplete && !reducedMotion && (
         <OrbitControls
           makeDefault
           enableDamping
           dampingFactor={0.05}
-          enablePan={false}
-          enableZoom={false} // در صورت نیاز می‌توانید زوم را فعال کنید
-          minPolarAngle={Math.PI / 5}
-          maxPolarAngle={Math.PI / 2.1}
-          minAzimuthAngle={-Math.PI / 4}
-          maxAzimuthAngle={Math.PI / 4}
+          // ویژگی enable=isExploring باعث می‌شود در حالت عادی اسکرول موبایل درگیر نشود
+          enabled={isExploring}
+          enablePan={isExploring}
+          enableZoom={isExploring}
+          // برداشتن محدودیت‌های افقی تا کاربر بتواند کامل بچرخد
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI / 1.8} // جلوگیری از رفتن زیر زمین
           target={[0, 1.1, 0.6]}
         />
       )}
