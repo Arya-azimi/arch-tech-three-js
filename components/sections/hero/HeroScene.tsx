@@ -79,7 +79,7 @@ function CameraRig({
   const [canAnimate, setCanAnimate] = useState(false);
 
   const start = useRef(new THREE.Vector3(-1.44, -0.17, 0.46));
-  const end = useRef(new THREE.Vector3(-1.25, -0.054, 5.7));
+  const end = useRef(new THREE.Vector3(-1.25, -0.2, 5.7));
   const lookTarget = useRef(new THREE.Vector3(-1.25, -0.1, 0));
 
   const introCompleteRef = useRef(introComplete);
