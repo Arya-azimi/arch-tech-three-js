@@ -56,7 +56,7 @@ export default function Hero() {
   }, [isExploring, stop, start]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
+    <section className="relative h-screen w-full overflow-hidden bg-neutral-200">
       <div className="absolute inset-0 h-full w-full">
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
