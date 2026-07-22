@@ -1,3 +1,4 @@
+// components/sections/Hero.tsx
 "use client";
 
 import { useEffect, useRef, useState, Suspense } from "react";
@@ -14,7 +15,7 @@ function SceneLoader() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-transparent">
       <span className="animate-pulse font-mono text-sm text-white/50">
-        Loading spatial assets…
+        Loading spatial assets...
       </span>
     </div>
   );
@@ -30,13 +31,22 @@ export default function Hero() {
 
   useEffect(() => {
     if (isExploring) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
+      document.documentElement.style.touchAction = "none";
+      document.body.style.touchAction = "none";
     } else {
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
+      document.documentElement.style.touchAction = "";
+      document.body.style.touchAction = "";
     }
 
     return () => {
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
+      document.documentElement.style.touchAction = "";
+      document.body.style.touchAction = "";
     };
   }, [isExploring]);
 
@@ -85,13 +95,18 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-transparent"
+      className="relative bg-transparent"
       style={{ height: "100svh", width: "100%" }}
     >
       <div
         ref={mediaRef}
-        className={`absolute inset-0 origin-top overflow-hidden will-change-transform transition-all duration-700 ${
-          isExploring ? "z-50 scale-100 rounded-none opacity-100" : "z-0"
+        data-lenis-prevent="true"
+        onWheel={(e) => isExploring && e.stopPropagation()}
+        onTouchMove={(e) => isExploring && e.stopPropagation()}
+        className={`origin-top will-change-transform transition-all duration-700 ${
+          isExploring
+            ? "fixed inset-0 z-50 scale-100 rounded-none opacity-100 bg-[#0a0a0a]"
+            : "absolute inset-0 z-0 overflow-hidden bg-transparent"
         }`}
       >
         <Suspense fallback={<SceneLoader />}>
@@ -131,7 +146,9 @@ export default function Hero() {
 
       <button
         onClick={() => setIsExploring(!isExploring)}
-        className="absolute bottom-8 right-8 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md transition-transform hover:scale-110 active:scale-95 md:bottom-12 md:right-12"
+        className={`bottom-8 right-8 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md transition-transform hover:scale-110 active:scale-95 md:bottom-12 md:right-12 ${
+          isExploring ? "fixed" : "absolute"
+        }`}
         aria-label={isExploring ? "Exit explore mode" : "Explore 3D model"}
       >
         {isExploring ? (
