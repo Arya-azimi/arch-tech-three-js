@@ -78,14 +78,14 @@ function CameraRig({
 
   const progress = useRef(reducedMotion ? 1 : 0);
 
-  // 1. نقطه شروع انیمیشن
-  const start = useRef(new THREE.Vector3(0, 4, 12));
+  // 1. نقطه شروع انیمیشن (زوم روی گلدان - تصویر اول)
+  const start = useRef(new THREE.Vector3(-0.19, -0.17, 0.46));
 
-  // 2. نقطه پایان: کمی عقب‌تر (افزایش Z) و جابجایی افقی (تنظیم X) برای قرارگیری در مرکز اتاق
-  const end = useRef(new THREE.Vector3(4.5, 1.4, 5.2));
+  // 2. نقطه پایان انیمیشن (نمای کامل اتاق - تصویر دوم)
+  const end = useRef(new THREE.Vector3(0, -0.054, 5.7));
 
-  // 3. نقطه نگاه: مرکز دقیق مبلمان و فضای داخلی خانه
-  const lookTarget = useRef(new THREE.Vector3(0, 0.8, 0));
+  // 3. نقطه نگاه: مرکز گلدان و میز برای چرخش روان
+  const lookTarget = useRef(new THREE.Vector3(0, -0.1, 0));
 
   const introCompleteRef = useRef(introComplete);
 
@@ -105,19 +105,24 @@ function CameraRig({
     if (!isCinematic) return;
 
     if (progress.current < 1) {
+      // تنظیم سرعت انیمیشن (۲.۶ ثانیه)
       progress.current = Math.min(1, progress.current + delta / 2.6);
       const t = easeInOutCubic(progress.current);
+
+      // انیمیشن نرم موقعیت دوربین
       camera.position.lerpVectors(start.current, end.current, t);
       camera.lookAt(lookTarget.current);
+
       if (progress.current >= 1 && !introCompleteRef.current) {
         setIntroComplete(true);
       }
       return;
     }
 
+    // افکت شناوری دوربین با حرکت ماوس (Parallax Effect) بعد از اتمام انیمیشن
     const p = pointer.current ?? { x: 0, y: 0 };
-    const tx = end.current.x + p.x * 0.8;
-    const ty = end.current.y - p.y * 0.5;
+    const tx = end.current.x + p.x * 0.4;
+    const ty = end.current.y - p.y * 0.2;
     camera.position.x += (tx - camera.position.x) * 0.04;
     camera.position.y += (ty - camera.position.y) * 0.04;
     camera.lookAt(lookTarget.current);
@@ -125,7 +130,6 @@ function CameraRig({
 
   return null;
 }
-
 export default function HeroScene({
   isExploring = false,
 }: {
@@ -193,7 +197,7 @@ export default function HeroScene({
           maxPolarAngle={Math.PI / 2 - 0.05}
           minDistance={1}
           maxDistance={12}
-          target={[0, 0.8, 0]}
+          target={[0, -0.1, 0]} // ست شده با lookTarget جدید
         />
       )}
     </Canvas>
