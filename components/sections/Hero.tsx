@@ -26,8 +26,19 @@ export default function Hero() {
   const uiRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
 
-  // استیت جدید برای مدیریت حالت کاوش در مدل سه‌بعدی
   const [isExploring, setIsExploring] = useState(false);
+
+  useEffect(() => {
+    if (isExploring) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isExploring]);
 
   useEffect(() => {
     if (
@@ -74,13 +85,11 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      // بک‌گراند مشکی حذف شد تا رنگ خود بوم سه‌بعدی دیده شود
       className="relative overflow-hidden bg-transparent"
       style={{ height: "100svh", width: "100%" }}
     >
       <div
         ref={mediaRef}
-        // وقتی کاربر در حال کاوش است، لایه سه‌بعدی بالاترین اولویت را می‌گیرد
         className={`absolute inset-0 origin-top overflow-hidden will-change-transform transition-all duration-700 ${
           isExploring ? "z-50 scale-100 rounded-none opacity-100" : "z-0"
         }`}
@@ -88,12 +97,10 @@ export default function Hero() {
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
         </Suspense>
-        {/* لایه‌های هاله تیره به طور کامل حذف شدند */}
       </div>
 
       <HeroIntro />
 
-      {/* رابط کاربری (متن‌ها) - وقتی وارد حالت کاوش می‌شویم محو می‌شود */}
       <div
         ref={uiRef}
         className={`pointer-events-none absolute inset-0 z-10 will-change-transform transition-opacity duration-500 ${
@@ -122,14 +129,12 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* دکمه ورود به حالت کاوش */}
       <button
         onClick={() => setIsExploring(!isExploring)}
         className="absolute bottom-8 right-8 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md transition-transform hover:scale-110 active:scale-95 md:bottom-12 md:right-12"
         aria-label={isExploring ? "Exit explore mode" : "Explore 3D model"}
       >
         {isExploring ? (
-          // آیکون X (بستن)
           <svg
             width="24"
             height="24"
@@ -144,7 +149,6 @@ export default function Hero() {
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         ) : (
-          // آیکون ذره‌بین (کاوش)
           <svg
             width="24"
             height="24"

@@ -11,7 +11,9 @@ export default function Room({
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
-  const { scene, materials } = useGLTF("/models/white_modern_living_room.glb");
+  const { scene, materials } = useGLTF(
+    "/models/interior_4_living_room__kitchen.glb",
+  );
 
   const paletteId = useRoomStore((s) => s.paletteId);
   const palette = getRoomPalette(paletteId);
@@ -54,4 +56,4 @@ export default function Room({
   );
 }
 
-useGLTF.preload("/models/white_modern_living_room.glb");
+useGLTF.preload("/models/interior_4_living_room__kitchen.glb");
