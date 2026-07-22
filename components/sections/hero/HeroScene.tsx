@@ -78,14 +78,14 @@ function CameraRig({
 
   const progress = useRef(reducedMotion ? 1 : 0);
 
-  // 1. نقطه شروع: دوربینی که اول لود سایت در فاصله دور قرار دارد
+  // 1. نقطه شروع انیمیشن
   const start = useRef(new THREE.Vector3(12, 4, 12));
 
-  // 2. نقطه پایان (داخل اتاق): مختصاتی که دوربین به عنوان نمای نهایی داخل اتاق می‌ایستد
-  const end = useRef(new THREE.Vector3(2.2, 1.2, 3.8));
+  // 2. نقطه پایان: کمی عقب‌تر (افزایش Z) و جابجایی افقی (تنظیم X) برای قرارگیری در مرکز اتاق
+  const end = useRef(new THREE.Vector3(4.5, 1.4, 5.2));
 
-  // 3. نقطه نگاه (مرکز تمرکز داخل اتاق): سمتی که دوربین به آن خیره می‌شود (سمت مبل‌ها و دیوار روبرو)
-  const lookTarget = useRef(new THREE.Vector3(-0.5, 1.0, 0));
+  // 3. نقطه نگاه: مرکز دقیق مبلمان و فضای داخلی خانه
+  const lookTarget = useRef(new THREE.Vector3(0, 0.8, 0));
 
   const introCompleteRef = useRef(introComplete);
 
@@ -193,7 +193,7 @@ export default function HeroScene({
           maxPolarAngle={Math.PI / 2 - 0.05}
           minDistance={1}
           maxDistance={12}
-          target={[-0.5, 1.0, 0]} // هماهنگ با lookTarget دوربین
+          target={[0, 0.8, 0]}
         />
       )}
     </Canvas>
