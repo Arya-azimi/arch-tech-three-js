@@ -110,7 +110,7 @@ export default function Hero() {
         }`}
       >
         <Suspense fallback={<SceneLoader />}>
-          <HeroScene isExploring={isExploring} />
+          <HeroScene />
         </Suspense>
       </div>
 
