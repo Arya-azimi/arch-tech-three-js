@@ -22,21 +22,6 @@ function canCreateWebGLContext() {
   }
 }
 
-function HeroSceneFallback() {
-  return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-transparent">
-      <div className="z-10 px-6 text-center">
-        <h2 className="mb-4 font-serif text-2xl text-white/80 md:text-4xl">
-          Experience the Space
-        </h2>
-        <p className="mx-auto max-w-md font-mono text-sm leading-relaxed text-white/50 md:text-base">
-          3D rendering is currently unavailable on this device.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function HeroScene() {
   const [webGLAvailable, setWebGLAvailable] = useState<boolean | null>(null);
 
@@ -44,16 +29,12 @@ export default function HeroScene() {
     setWebGLAvailable(canCreateWebGLContext());
   }, []);
 
-  if (webGLAvailable === null) return <HeroSceneFallback />;
-  if (!webGLAvailable) return <HeroSceneFallback />;
-
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
       camera={{ position: [0, 0, 8], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      fallback={<HeroSceneFallback />}
       onError={() => setWebGLAvailable(false)}
       onCreated={({ gl }) => {
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -77,9 +58,15 @@ export default function HeroScene() {
 
       <OrbitControls
         makeDefault
-        enableDamping
-        dampingFactor={0.05}
-        target={[0, 0, 0]}
+        onChange={(e) => {
+          if (e?.target) {
+            const cam = e.target.object.position;
+            const target = e.target.target;
+            console.log(
+              `Cam: [${cam.x.toFixed(2)}, ${cam.y.toFixed(2)}, ${cam.z.toFixed(2)}] | Target: [${target.x.toFixed(2)}, ${target.y.toFixed(2)}, ${target.z.toFixed(2)}]`,
+            );
+          }
+        }}
       />
     </Canvas>
   );

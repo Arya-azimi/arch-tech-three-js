@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, Suspense } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextReveal from "@/components/interaction/TextReveal";
-import HeroIntro from "@/components/sections/hero/HeroIntro";
 import HeroScene from "@/components/sections/hero/HeroScene";
 import { useUIStore } from "@/lib/store";
 
@@ -113,8 +112,6 @@ export default function Hero() {
           <HeroScene />
         </Suspense>
       </div>
-
-      <HeroIntro />
 
       <div
         ref={uiRef}
