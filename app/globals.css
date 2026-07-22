@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
+/*
+  Arch Tech — Global Design System
+  Fluid typographic scale, adaptive light/dark theme tokens,
+  and a 12/8/4 responsive grid foundation.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light theme (default) */
+  --background: #f4f4f2;
+  --surface: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #595959;
+  --accent: #b8a886;
+  --border: #e5e5e5;
+
+  /* Fluid type scale */
+  --fs-h1: clamp(3.5rem, 10vw, 10rem);
+  --fs-h2: clamp(2.5rem, 6vw, 6rem);
+  --fs-h3: clamp(1.5rem, 3vw, 3rem);
+  --fs-p: clamp(1rem, 1.2vw, 1.5rem);
+
+  /* Grid system */
+  --grid-columns: 4;
+  --grid-gutter: 4vw;
+  --grid-margin: 6vw;
+
+  /* Motion */
+  --ease-expo: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-fast: 0.4s;
+  --dur-base: 0.8s;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #0d0d0d;
+  --surface: #1a1a1a;
+  --text-primary: #f4f4f2;
+  --text-secondary: #a6a6a6;
+  --accent: #042940;
+  --border: #333333;
+  color-scheme: dark;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  :root {
+    --grid-columns: 8;
+    --grid-gutter: 3vw;
+    --grid-margin: 5vw;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  :root {
+    --grid-columns: 12;
+    --grid-gutter: 2vw;
+    --grid-margin: 4vw;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --font-sans: var(--font-primary);
+  --font-serif: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-primary), "Inter", sans-serif;
+  transition:
+    background-color var(--dur-base) var(--ease-expo),
+    color var(--dur-base) var(--ease-expo);
+  overflow-x: hidden;
+}
+
+/* Lenis smooth scroll requirements */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Typographic primitives */
+.font-display {
+  font-family: var(--font-display), "Georgia", serif;
+}
+
+.text-h1 {
+  font-size: var(--fs-h1);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.text-h2 {
+  font-size: var(--fs-h2);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.text-h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.text-body {
+  font-size: var(--fs-p);
+  line-height: 1.5;
+}
+
+/* Grid helper */
+.grid-shell {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  gap: var(--grid-gutter);
+  padding-inline: var(--grid-margin);
+}
+
+/* Text reveal: each line wraps in a mask, chars/words translate up */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+}
+.reveal-line > span {
+  display: block;
+  transform: translateY(110%);
+  will-change: transform;
+}
+
+/* Hide native cursor when the custom cursor is active */
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+
+/* Accessibility: honor reduced motion at the CSS layer too */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--background);
 }
