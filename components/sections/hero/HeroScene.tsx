@@ -1,4 +1,3 @@
-// components/sections/hero/HeroScene.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -47,35 +46,14 @@ function HeroSceneFallback({
   );
 }
 
-function useSharedPointer() {
-  const pointer = useRef({ x: 0, y: 0 });
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    window.addEventListener("pointermove", onMove);
-    return () => window.removeEventListener("pointermove", onMove);
-  }, []);
-  return pointer;
-}
-
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function CameraRig({
-  pointer,
-  isCinematic,
-}: {
-  pointer: React.RefObject<{ x: number; y: number }>;
-  isCinematic: boolean;
-}) {
+function CameraRig({ isCinematic }: { isCinematic: boolean }) {
   const { camera } = useThree();
   const introComplete = useRoomStore((s) => s.introComplete);
   const setIntroComplete = useRoomStore((s) => s.setIntroComplete);
-
-  // خواندن مقادیر استور برای هماهنگی دقیق با Preloader
   const reducedMotion = useUIStore((s) => s.reducedMotion);
   const isLoaded = useUIStore((s) => s.isLoaded);
 
@@ -92,10 +70,8 @@ function CameraRig({
     introCompleteRef.current = introComplete;
   }, [introComplete]);
 
-  // استارت انیمیشن دقیقاً بعد از لود شدن کامل و همگام با کرکره GSAP
   useEffect(() => {
     if (isLoaded) {
-      // کرکره حدود 0.4 ثانیه طول میکشه تا حرکت عمودیش رو شروع کنه
       const timer = setTimeout(() => {
         setCanAnimate(true);
       }, 400);
@@ -112,7 +88,9 @@ function CameraRig({
   }, [camera, reducedMotion, setIntroComplete]);
 
   useFrame((_, delta) => {
-    if (!isCinematic || !canAnimate) {
+    if (!isCinematic) return;
+
+    if (!canAnimate) {
       camera.position.copy(start.current);
       camera.lookAt(lookTarget.current);
       return;
@@ -129,11 +107,7 @@ function CameraRig({
       return;
     }
 
-    const p = pointer.current ?? { x: 0, y: 0 };
-    const tx = end.current.x + p.x * 0.4;
-    const ty = end.current.y - p.y * 0.2;
-    camera.position.x += (tx - camera.position.x) * 0.04;
-    camera.position.y += (ty - camera.position.y) * 0.04;
+    camera.position.copy(end.current);
     camera.lookAt(lookTarget.current);
   });
 
@@ -145,7 +119,6 @@ export default function HeroScene({
 }: {
   isExploring?: boolean;
 }) {
-  const pointer = useSharedPointer();
   const introComplete = useRoomStore((s) => s.introComplete);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
   const [webGLAvailable, setWebGLAvailable] = useState<boolean | null>(null);
@@ -159,58 +132,66 @@ export default function HeroScene({
   if (!webGLAvailable) return <HeroSceneFallback />;
 
   return (
-    <Canvas
-      shadows
-      dpr={[1, 2]}
-      camera={{ position: [0.01, -0.26, 1.88], fov: 45 }}
-      // هندل کردن مشکل قفل شدن اسکرول در موبایل:
-      style={{ touchAction: isExploring ? "none" : "auto" }}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      fallback={<HeroSceneFallback />}
-      onError={() => setWebGLAvailable(false)}
-      onCreated={({ gl }) => {
-        gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-      }}
+    <div
+      className={`h-full w-full ${
+        isExploring ? "pointer-events-auto" : "pointer-events-none"
+      }`}
     >
-      <Environment
-        preset="apartment"
-        environmentIntensity={1.2}
-        background={false}
-      />
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        camera={{ position: [0.01, -0.26, 1.88], fov: 45 }}
+        style={{
+          touchAction: isExploring ? "none" : "auto",
+          pointerEvents: isExploring ? "auto" : "none",
+        }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
+        fallback={<HeroSceneFallback />}
+        onError={() => setWebGLAvailable(false)}
+        onCreated={({ gl }) => {
+          gl.shadowMap.type = THREE.PCFSoftShadowMap;
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+        }}
+      >
+        <Environment
+          preset="apartment"
+          environmentIntensity={1.2}
+          background={false}
+        />
 
-      <directionalLight
-        position={[10, 10, 5]}
-        intensity={1}
-        castShadow
-        shadow-bias={-0.0002}
-        shadow-mapSize={[1024, 1024]}
-        color="#fff2e0"
-      />
-      <ambientLight intensity={0.5} />
+        <directionalLight
+          position={[10, 10, 5]}
+          intensity={1}
+          castShadow
+          shadow-bias={-0.0002}
+          shadow-mapSize={[1024, 1024]}
+          color="#fff2e0"
+        />
+        <ambientLight intensity={0.5} />
 
-      <Room />
+        <Room />
 
-      <CameraRig
-        pointer={pointer}
-        isCinematic={introComplete && !isExploring}
-      />
+        <CameraRig isCinematic={!isExploring} />
 
-      {introComplete && !reducedMotion && (
         <OrbitControls
           makeDefault
           enableDamping
           dampingFactor={0.05}
           enabled={isExploring}
+          enableRotate={isExploring}
           enablePan={isExploring}
           enableZoom={isExploring}
           minPolarAngle={0}
           maxPolarAngle={Math.PI / 2 - 0.05}
-          minDistance={1}
+          minDistance={0.5}
           maxDistance={12}
           target={[0, 0, 0]}
         />
-      )}
-    </Canvas>
+      </Canvas>
+    </div>
   );
 }

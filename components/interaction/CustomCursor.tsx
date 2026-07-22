@@ -4,14 +4,6 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { useUIStore } from "@/lib/store";
 
-/**
- * Magnetic custom cursor with mix-blend-difference.
- *
- * - A small dot follows the pointer with lerp physics (0.15).
- * - `data-cursor` attributes on hovered elements switch state:
- *     link | draggable | video | three  (see spec `custom_cursor.states`).
- * - Disabled entirely for touch devices and reduced-motion users.
- */
 export default function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
@@ -21,7 +13,6 @@ export default function CustomCursor() {
   const cursorLabel = useUIStore((s) => s.cursorLabel);
   const setCursor = useUIStore((s) => s.setCursor);
 
-  // Pointer tracking + lerp loop.
   useEffect(() => {
     if (reducedMotion) return;
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
@@ -41,11 +32,10 @@ export default function CustomCursor() {
     const onMove = (e: PointerEvent) => {
       target.x = e.clientX;
       target.y = e.clientY;
-      // Dot tracks 1:1 for precision.
+
       dotX(e.clientX);
       dotY(e.clientY);
 
-      // Hit-test for interaction intent via data-cursor attribute.
       const el = (e.target as HTMLElement)?.closest?.("[data-cursor]");
       if (el) {
         const state = el.getAttribute("data-cursor") || "default";
@@ -73,7 +63,6 @@ export default function CustomCursor() {
     };
   }, [reducedMotion, setCursor]);
 
-  // Animate ring appearance per interaction state.
   useEffect(() => {
     if (reducedMotion || !ringRef.current) return;
     const map: Record<string, { scale: number; opacity: number }> = {
@@ -101,14 +90,10 @@ export default function CustomCursor() {
   if (reducedMotion) return null;
 
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed z-[9999] h-4 w-4 rounded-full bg-white mix-blend-difference"
-    >
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[9999]">
       <div
         ref={ringRef}
         className="fixed left-0 top-0 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white mix-blend-difference"
-        style={{ marginLeft: -20, marginTop: -20 }}
       >
         <span
           ref={labelRef}
@@ -120,7 +105,6 @@ export default function CustomCursor() {
       <div
         ref={dotRef}
         className="fixed left-0 top-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"
-        style={{ marginLeft: -3, marginTop: -3 }}
       />
     </div>
   );
