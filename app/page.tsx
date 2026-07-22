@@ -1,7 +1,6 @@
 import Hero from "@/components/sections/Hero";
 import HorizontalGallery from "@/components/sections/HorizontalGallery";
 import Studio from "@/components/sections/Studio";
-import Configurator from "@/components/configurator/Configurator";
 import Footer from "@/components/layout/Footer";
 
 /**
@@ -15,7 +14,6 @@ export default function Home() {
       <Hero />
       <HorizontalGallery />
       <Studio />
-      <Configurator />
       <Footer />
     </main>
   );
