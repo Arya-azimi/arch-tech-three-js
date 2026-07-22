@@ -26,6 +26,21 @@ export default function Hero() {
   const introComplete = useRoomStore((s) => s.introComplete);
   const { stop, start } = useSmoothScroll();
 
+  const handleToggleExplore = () => {
+    if (!isExploring) {
+      // اسکرول نرم استاندارد مرورگر به بالای صفحه
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      setTimeout(() => {
+        setIsExploring(true);
+      }, 200);
+    } else {
+      setIsExploring(false);
+    }
+  };
+
   useEffect(() => {
     if (isExploring) {
       stop();
@@ -41,14 +56,13 @@ export default function Hero() {
   }, [isExploring, stop, start]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-neutral-200">
+    <section className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
       <div className="absolute inset-0 h-full w-full">
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
         </Suspense>
       </div>
 
-      {/* متون داینامیک با قابلیت mix-blend-difference */}
       <div
         className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-1000 mix-blend-difference ${
           introComplete && !isExploring ? "opacity-100" : "opacity-0"
@@ -65,7 +79,7 @@ export default function Hero() {
       {isLoaded && (
         <RoomControls
           isExploring={isExploring}
-          onToggleExplore={() => setIsExploring((prev) => !prev)}
+          onToggleExplore={handleToggleExplore}
         />
       )}
     </section>

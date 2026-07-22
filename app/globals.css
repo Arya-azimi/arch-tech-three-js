@@ -1,64 +1,54 @@
 @import "tailwindcss";
 
-/*
-  Arch Tech — Global Design System
-  Fluid typographic scale, adaptive light/dark theme tokens,
-  and a 12/8/4 responsive grid foundation.
-*/
-
-:root {
-  /* Light theme (default) */
-  --background: #f4f4f2;
-  --surface: #ffffff;
-  --text-primary: #1a1a1a;
-  --text-secondary: #595959;
-  --accent: #b8a886;
-  --border: #e5e5e5;
-
-  /* Fluid type scale */
-  --fs-h1: clamp(3.5rem, 10vw, 10rem);
-  --fs-h2: clamp(2.5rem, 6vw, 6rem);
-  --fs-h3: clamp(1.5rem, 3vw, 3rem);
-  --fs-p: clamp(1rem, 1.2vw, 1.5rem);
-
-  /* Grid system */
-  --grid-columns: 4;
-  --grid-gutter: 4vw;
-  --grid-margin: 6vw;
-
-  /* Motion */
-  --ease-expo: cubic-bezier(0.76, 0, 0.24, 1);
-  --dur-fast: 0.4s;
-  --dur-base: 0.8s;
-
-  color-scheme: light;
-}
-
-[data-theme="dark"] {
-  --background: #0d0d0d;
-  --surface: #1a1a1a;
-  --text-primary: #f4f4f2;
-  --text-secondary: #a6a6a6;
-  --accent: #042940;
-  --border: #333333;
-  color-scheme: dark;
-}
-
-/* Tablet */
-@media (min-width: 768px) {
+@layer base {
   :root {
-    --grid-columns: 8;
-    --grid-gutter: 3vw;
-    --grid-margin: 5vw;
+    --background: #f4f4f2;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #595959;
+    --accent: #b8a886;
+    --border: #e5e5e5;
+
+    --fs-h1: clamp(3.5rem, 10vw, 10rem);
+    --fs-h2: clamp(2.5rem, 6vw, 6rem);
+    --fs-h3: clamp(1.5rem, 3vw, 3rem);
+    --fs-p: clamp(1rem, 1.2vw, 1.5rem);
+
+    --grid-columns: 4;
+    --grid-gutter: 4vw;
+    --grid-margin: 6vw;
+
+    --ease-expo: cubic-bezier(0.76, 0, 0.24, 1);
+    --dur-fast: 0.4s;
+    --dur-base: 0.8s;
+
+    color-scheme: light;
   }
-}
 
-/* Desktop */
-@media (min-width: 1024px) {
-  :root {
-    --grid-columns: 12;
-    --grid-gutter: 2vw;
-    --grid-margin: 4vw;
+  [data-theme="dark"] {
+    --background: #0d0d0d;
+    --surface: #1a1a1a;
+    --text-primary: #f4f4f2;
+    --text-secondary: #a6a6a6;
+    --accent: #042940;
+    --border: #333333;
+    color-scheme: dark;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --grid-columns: 8;
+      --grid-gutter: 3vw;
+      --grid-margin: 5vw;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --grid-columns: 12;
+      --grid-gutter: 2vw;
+      --grid-margin: 4vw;
+    }
   }
 }
 
@@ -92,7 +82,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Lenis smooth scroll requirements */
 html.lenis,
 html.lenis body {
   height: auto;
@@ -106,7 +95,6 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* Typographic primitives */
 .font-display {
   font-family: var(--font-display), "Georgia", serif;
 }
@@ -131,7 +119,6 @@ html.lenis body {
   line-height: 1.5;
 }
 
-/* Grid helper */
 .grid-shell {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns), 1fr);
@@ -139,7 +126,6 @@ html.lenis body {
   padding-inline: var(--grid-margin);
 }
 
-/* Text reveal: each line wraps in a mask, chars/words translate up */
 .reveal-line {
   display: block;
   overflow: hidden;
@@ -150,13 +136,11 @@ html.lenis body {
   will-change: transform;
 }
 
-/* Hide native cursor when the custom cursor is active */
 .custom-cursor-active,
 .custom-cursor-active * {
   cursor: none !important;
 }
 
-/* Accessibility: honor reduced motion at the CSS layer too */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
