@@ -79,7 +79,7 @@ function CameraRig({
   const progress = useRef(reducedMotion ? 1 : 0);
 
   // 1. نقطه شروع انیمیشن
-  const start = useRef(new THREE.Vector3(12, 4, 12));
+  const start = useRef(new THREE.Vector3(0, 4, 12));
 
   // 2. نقطه پایان: کمی عقب‌تر (افزایش Z) و جابجایی افقی (تنظیم X) برای قرارگیری در مرکز اتاق
   const end = useRef(new THREE.Vector3(4.5, 1.4, 5.2));
