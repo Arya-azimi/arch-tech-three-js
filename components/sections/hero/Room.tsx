@@ -4,11 +4,11 @@
 import { useGLTF } from "@react-three/drei";
 
 export default function Room() {
-  const { scene } = useGLTF("/models/modern_dining_room.glb");
+  const { scene } = useGLTF("/models/scene.glb");
   return <primitive object={scene} />;
 }
 
 useGLTF.preload(
-  "/models/modern_dining_room.glb",
+  "/models/scene.glb",
   "https://www.gstatic.com/draco/v1/decoders/",
 );

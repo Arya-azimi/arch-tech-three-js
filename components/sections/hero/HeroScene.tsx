@@ -74,14 +74,16 @@ function CameraRig({
   const { camera } = useThree();
   const introComplete = useRoomStore((s) => s.introComplete);
   const setIntroComplete = useRoomStore((s) => s.setIntroComplete);
+
+  // خواندن مقادیر استور برای هماهنگی دقیق با Preloader
   const reducedMotion = useUIStore((s) => s.reducedMotion);
+  const isLoaded = useUIStore((s) => s.isLoaded);
 
   const progress = useRef(reducedMotion ? 1 : 0);
+  const [canAnimate, setCanAnimate] = useState(false);
 
   const start = useRef(new THREE.Vector3(0.01, -0.26, 1.88));
-
   const end = useRef(new THREE.Vector3(0.0, 0.0, 6.86));
-
   const lookTarget = useRef(new THREE.Vector3(0.0, 0.0, 0.0));
 
   const introCompleteRef = useRef(introComplete);
@@ -89,6 +91,17 @@ function CameraRig({
   useEffect(() => {
     introCompleteRef.current = introComplete;
   }, [introComplete]);
+
+  // استارت انیمیشن دقیقاً بعد از لود شدن کامل و همگام با کرکره GSAP
+  useEffect(() => {
+    if (isLoaded) {
+      // کرکره حدود 0.4 ثانیه طول میکشه تا حرکت عمودیش رو شروع کنه
+      const timer = setTimeout(() => {
+        setCanAnimate(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -99,7 +112,7 @@ function CameraRig({
   }, [camera, reducedMotion, setIntroComplete]);
 
   useFrame((_, delta) => {
-    if (!isCinematic) {
+    if (!isCinematic || !canAnimate) {
       camera.position.copy(start.current);
       camera.lookAt(lookTarget.current);
       return;
@@ -116,10 +129,9 @@ function CameraRig({
       return;
     }
 
-    // حرکت بسیار ملایم دوربین با ماوس پس از اتمام انیمیشن (Parallax)
     const p = pointer.current ?? { x: 0, y: 0 };
-    const tx = end.current.x + p.x * 0.3;
-    const ty = end.current.y - p.y * 0.15;
+    const tx = end.current.x + p.x * 0.4;
+    const ty = end.current.y - p.y * 0.2;
     camera.position.x += (tx - camera.position.x) * 0.04;
     camera.position.y += (ty - camera.position.y) * 0.04;
     camera.lookAt(lookTarget.current);
@@ -151,6 +163,8 @@ export default function HeroScene({
       shadows
       dpr={[1, 2]}
       camera={{ position: [0.01, -0.26, 1.88], fov: 45 }}
+      // هندل کردن مشکل قفل شدن اسکرول در موبایل:
+      style={{ touchAction: isExploring ? "none" : "auto" }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       fallback={<HeroSceneFallback />}
       onError={() => setWebGLAvailable(false)}
