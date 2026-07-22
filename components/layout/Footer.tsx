@@ -1,10 +1,10 @@
+// components/layout/Footer.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import MagneticButton from "@/components/interaction/MagneticButton";
-import TextReveal from "@/components/interaction/TextReveal";
 import { useUIStore } from "@/lib/store";
 
 if (typeof window !== "undefined") {
@@ -14,51 +14,28 @@ if (typeof window !== "undefined") {
 const SOCIALS = [
   { label: "Instagram", href: "https://instagram.com" },
   { label: "LinkedIn", href: "https://linkedin.com" },
-  { label: "Behance", href: "https://behance.net" },
+  { label: "Twitter / X", href: "https://twitter.com" },
 ];
 
-/**
- * Massive-typography CTA footer (tecnoarreda inspiration). The footer sits
- * behind the page (z -1) and is revealed as the previous section scrolls up,
- * creating a curtain effect. Includes a live local-time display and magnetic
- * social links.
- */
 export default function Footer() {
-  const [time, setTime] = useState("");
   const rootRef = useRef<HTMLElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
 
-  // Live local time (spec: "London 14:30" style).
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      setTime(
-        now.toLocaleTimeString("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      );
-    };
-    update();
-    const id = window.setInterval(update, 1000 * 15);
-    return () => window.clearInterval(id);
-  }, []);
-
-  // Curtain reveal: inner content parallaxes up as the footer enters view.
+  // انیمیشن پرده‌ای (Curtain reveal)
   useEffect(() => {
     if (reducedMotion || !rootRef.current || !innerRef.current) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         innerRef.current,
-        { yPercent: -30 },
+        { yPercent: -20 },
         {
           yPercent: 0,
           ease: "none",
           scrollTrigger: {
             trigger: rootRef.current,
             start: "top bottom",
-            end: "top top",
+            end: "bottom bottom",
             scrub: true,
           },
         },
@@ -71,34 +48,38 @@ export default function Footer() {
     <footer
       id="contact"
       ref={rootRef}
-      className="relative z-0 min-h-[80vh] overflow-hidden bg-[var(--text-primary)] text-[var(--background)]"
+      className="relative z-0 min-h-[90vh] overflow-hidden bg-[#0a0a0a] text-[#f4f4f2] selection:bg-[var(--accent)] selection:text-black"
     >
       <div
         ref={innerRef}
-        className="grid-shell flex min-h-[80vh] flex-col justify-between py-[8vh]"
+        className="flex min-h-[90vh] flex-col justify-between px-6 py-12 md:px-16 lg:px-24"
       >
-        <div className="flex items-start justify-between text-xs uppercase tracking-widest">
-          <span>Arch Tech — Est. 2019</span>
-          <span className="tabular-nums">Milan {time}</span>
+        <div className="flex flex-col gap-4 border-b border-white/10 pb-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-white/50">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Arch Tech Studio is ready for your Projects</span>
+          </div>
         </div>
 
-        <div className="py-[6vh]">
-          <TextReveal
-            as="h2"
-            text="Let's build something"
-            className="font-display text-h1 leading-[0.9]"
-          />
-          <a
-            href="mailto:studio@archtech.com"
-            data-cursor="link"
-            className="font-display text-h1 leading-[0.9] underline decoration-[var(--accent)] underline-offset-[0.1em]"
-          >
-            enduring.
-          </a>
+        <div className="py-16 md:py-24">
+          <div className="mt-6">
+            <h2 className="font-display text-5xl font-light tracking-tight md:text-8xl lg:text-9xl">
+              Let&apos;s shape
+            </h2>
+            <div className="flex flex-col md:flex-row md:items-baseline md:gap-8">
+              <a
+                href="mailto:studio@archtech.com"
+                data-cursor="link"
+                className="font-display text-5xl font-light tracking-tight text-white/90 underline decoration-[var(--accent)] underline-offset-[0.15em] transition-colors duration-300 hover:text-[var(--accent)] md:text-8xl lg:text-9xl"
+              >
+                tomorrow.
+              </a>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div className="flex gap-6">
+        <div className="flex flex-col gap-12 border-t border-white/10 pt-12 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-wrap gap-8">
             {SOCIALS.map((s) => (
               <MagneticButton
                 key={s.label}
@@ -106,37 +87,24 @@ export default function Footer() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm"
+                className="font-mono text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors"
               >
-                {s.label}
+                ↗ {s.label}
               </MagneticButton>
             ))}
           </div>
+        </div>
 
-          {/* Newsletter with animated underline */}
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="group relative w-full max-w-sm"
-          >
-            <label htmlFor="newsletter" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="newsletter"
-              type="email"
-              required
-              placeholder="Email address"
-              className="w-full bg-transparent py-2 text-body text-[var(--background)] placeholder:text-[var(--background)]/50 focus:outline-none"
-            />
-            <span className="pointer-events-none absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-[var(--accent)] transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-focus-within:scale-x-100" />
-            <button
-              type="submit"
-              data-cursor="link"
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-xs uppercase tracking-widest"
-            >
-              Subscribe
-            </button>
-          </form>
+        <div className="mt-12 flex flex-col justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40 md:flex-row">
+          <p>© 2026 Arch Tech Studio. All Rights Reserved.</p>
+          <div className="flex gap-6">
+            <a href="#privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </a>
+          </div>
         </div>
       </div>
     </footer>
