@@ -76,9 +76,26 @@ function CameraRig({
   const reducedMotion = useUIStore((s) => s.reducedMotion);
 
   const progress = useRef(reducedMotion ? 1 : 0);
-  const start = useRef(new THREE.Vector3(12, 1.2, 12));
-  const end = useRef(new THREE.Vector3(6.2, 3.6, 7.2));
-  const lookTarget = useRef(new THREE.Vector3(0, 1.1, 0.6));
+
+  // =========================================================================================
+  // تنظیمات دوربین (دلیل مشکل شما اینجا بود)
+  // اعداد داخل Vector3 به ترتیب نشان‌دهنده مختصات (X, Y, Z) هستند.
+  // =========================================================================================
+
+  // 1. نقطه شروع: دوربینی که اول لود سایت در فاصله دور قرار دارد
+  const start = useRef(new THREE.Vector3(12, 4, 12));
+
+  // 2. نقطه پایان: این دقیقا جایی است که انیمیشن تمام می‌شود و گیر می‌کرد.
+  // در کد قبلی، عدد وسط (Y یا ارتفاع) روی 3 بود که باعث می‌شد دوربین دقیقا روی سقف مدل جدید قرار بگیرد.
+  // من ارتفاع را به 1.5 کاهش دادم تا دوربین بیاید زیر سقف، و Z را به 6 آوردم تا دید بهتری داشته باشد.
+  const end = useRef(new THREE.Vector3(6, 1.5, 6));
+
+  // 3. نقطه نگاه: نقطه‌ای که دوربین در تمام مدت انیمیشن به آن خیره شده است (مرکز مدل).
+  // این را هم کمی پایین آوردم (0.5) تا دید به جای سقف، بیشتر روی مبل‌ها متمرکز شود.
+  const lookTarget = useRef(new THREE.Vector3(0, 0.5, 0));
+
+  // =========================================================================================
+
   const introCompleteRef = useRef(introComplete);
 
   useEffect(() => {
@@ -94,6 +111,8 @@ function CameraRig({
   }, [camera, reducedMotion, setIntroComplete]);
 
   useFrame((_, delta) => {
+    if (!isCinematic) return;
+
     if (progress.current < 1) {
       progress.current = Math.min(1, progress.current + delta / 2.6);
       const t = easeInOutCubic(progress.current);
@@ -105,15 +124,12 @@ function CameraRig({
       return;
     }
 
-    // حرکت سینماتیک موس فقط زمانی اعمال می‌شود که کاربر در حال اسکرول یا حالت عادی است (نه اکسپلور)
-    if (isCinematic) {
-      const p = pointer.current ?? { x: 0, y: 0 };
-      const tx = end.current.x + p.x * 0.8;
-      const ty = end.current.y - p.y * 0.5;
-      camera.position.x += (tx - camera.position.x) * 0.04;
-      camera.position.y += (ty - camera.position.y) * 0.04;
-      camera.lookAt(lookTarget.current);
-    }
+    const p = pointer.current ?? { x: 0, y: 0 };
+    const tx = end.current.x + p.x * 0.8;
+    const ty = end.current.y - p.y * 0.5;
+    camera.position.x += (tx - camera.position.x) * 0.04;
+    camera.position.y += (ty - camera.position.y) * 0.04;
+    camera.lookAt(lookTarget.current);
   });
 
   return null;
@@ -141,11 +157,11 @@ export default function HeroScene({
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: [12, 1.2, 12], fov: 38 }}
+      camera={{ position: [8, 4, 8], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       fallback={<HeroSceneFallback />}
       onError={() => setWebGLAvailable(false)}
-      onCreated={({ gl, scene }) => {
+      onCreated={({ gl }) => {
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
         gl.toneMapping = THREE.ACESFilmicToneMapping;
       }}
@@ -157,17 +173,16 @@ export default function HeroScene({
       />
 
       <directionalLight
-        position={[6, 9, 4]}
-        intensity={0.8}
+        position={[10, 10, 5]}
+        intensity={1}
         castShadow
         shadow-bias={-0.0002}
         shadow-mapSize={[1024, 1024]}
         color="#fff2e0"
       />
+      <ambientLight intensity={0.5} />
 
       <Room pointer={pointer} />
-
-      {/* ContactShadows حذف شد تا هاله تیره ایجاد نشود */}
 
       <CameraRig
         pointer={pointer}
@@ -179,14 +194,16 @@ export default function HeroScene({
           makeDefault
           enableDamping
           dampingFactor={0.05}
-          // ویژگی enable=isExploring باعث می‌شود در حالت عادی اسکرول موبایل درگیر نشود
           enabled={isExploring}
           enablePan={isExploring}
           enableZoom={isExploring}
-          // برداشتن محدودیت‌های افقی تا کاربر بتواند کامل بچرخد
           minPolarAngle={0}
-          maxPolarAngle={Math.PI / 1.8} // جلوگیری از رفتن زیر زمین
-          target={[0, 1.1, 0.6]}
+          // محدودیت زاویه چرخش رو هم تغییر دادم تا کاربر نتونه از زیرِ زمین به مدل نگاه کنه
+          maxPolarAngle={Math.PI / 2 - 0.05}
+          // این دو مورد هم اجازه نمیدن خیلی تو دیوار فرو برید یا خیلی دور بشید
+          minDistance={1}
+          maxDistance={12}
+          target={[0, 0.5, 0]}
         />
       )}
     </Canvas>
