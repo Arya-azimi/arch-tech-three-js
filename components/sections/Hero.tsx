@@ -1,9 +1,11 @@
+// components/sections/Hero.tsx
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import HeroScene from "@/components/sections/hero/HeroScene";
 import RoomControls from "@/components/sections/hero/RoomControls";
-import { useRoomStore, useUIStore } from "@/lib/store";
+import { useUIStore } from "@/lib/store";
+import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
 
 function SceneLoader() {
   return (
@@ -20,8 +22,22 @@ function SceneLoader() {
 
 export default function Hero() {
   const [isExploring, setIsExploring] = useState(false);
-  const introComplete = useRoomStore((s) => s.introComplete);
   const isLoaded = useUIStore((s) => s.isLoaded);
+  const { stop, start } = useSmoothScroll();
+
+  useEffect(() => {
+    if (isExploring) {
+      stop();
+      document.body.style.overflow = "hidden";
+    } else {
+      start();
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isExploring, stop, start]);
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[var(--background)]">
