@@ -79,13 +79,13 @@ function CameraRig({
   const progress = useRef(reducedMotion ? 1 : 0);
 
   // 1. نقطه شروع انیمیشن
-  const start = useRef(new THREE.Vector3(12, 0, 12));
+  const start = useRef(new THREE.Vector3(12, 4, 12));
 
   // 2. نقطه پایان: کمی عقب‌تر (افزایش Z) و جابجایی افقی (تنظیم X) برای قرارگیری در مرکز اتاق
-  const end = useRef(new THREE.Vector3(0, 0, 0));
+  const end = useRef(new THREE.Vector3(4.5, 1.4, 5.2));
 
   // 3. نقطه نگاه: مرکز دقیق مبلمان و فضای داخلی خانه
-  const lookTarget = useRef(new THREE.Vector3(0, 0, 0));
+  const lookTarget = useRef(new THREE.Vector3(0, 0.8, 0));
 
   const introCompleteRef = useRef(introComplete);
 
