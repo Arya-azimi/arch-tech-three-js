@@ -105,7 +105,7 @@ export default function Hero() {
         onTouchMove={(e) => isExploring && e.stopPropagation()}
         className={`origin-top will-change-transform transition-all duration-700 ${
           isExploring
-            ? "fixed inset-0 z-50 scale-100 rounded-none opacity-100 bg-[#0a0a0a]"
+            ? "fixed inset-0 z-50 scale-100 rounded-none opacity-100 bg-transparent"
             : "absolute inset-0 z-0 overflow-hidden bg-transparent"
         }`}
       >
