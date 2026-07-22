@@ -1,4 +1,3 @@
-// components/sections/hero/HeroScene.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -77,21 +76,24 @@ function CameraRig({
   const reducedMotion = useUIStore((s) => s.reducedMotion);
 
   const progress = useRef(reducedMotion ? 1 : 0);
+  const [canAnimate, setCanAnimate] = useState(false);
 
-  // 1. نقطه شروع انیمیشن (زوم روی گلدان - تصویر اول)
-  const start = useRef(new THREE.Vector3(-0.19, -0.17, 0.46));
-
-  // 2. نقطه پایان انیمیشن (نمای کامل اتاق - تصویر دوم)
-  const end = useRef(new THREE.Vector3(0, -0.054, 5.7));
-
-  // 3. نقطه نگاه: مرکز گلدان و میز برای چرخش روان
-  const lookTarget = useRef(new THREE.Vector3(0, -0.1, 0));
+  const start = useRef(new THREE.Vector3(-1.44, -0.17, 0.46));
+  const end = useRef(new THREE.Vector3(-1.25, -0.054, 5.7));
+  const lookTarget = useRef(new THREE.Vector3(-1.25, -0.1, 0));
 
   const introCompleteRef = useRef(introComplete);
 
   useEffect(() => {
     introCompleteRef.current = introComplete;
   }, [introComplete]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCanAnimate(true);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -102,24 +104,23 @@ function CameraRig({
   }, [camera, reducedMotion, setIntroComplete]);
 
   useFrame((_, delta) => {
-    if (!isCinematic) return;
+    if (!isCinematic || !canAnimate) {
+      camera.position.copy(start.current);
+      camera.lookAt(lookTarget.current);
+      return;
+    }
 
     if (progress.current < 1) {
-      // تنظیم سرعت انیمیشن (۲.۶ ثانیه)
       progress.current = Math.min(1, progress.current + delta / 2.6);
       const t = easeInOutCubic(progress.current);
-
-      // انیمیشن نرم موقعیت دوربین
       camera.position.lerpVectors(start.current, end.current, t);
       camera.lookAt(lookTarget.current);
-
       if (progress.current >= 1 && !introCompleteRef.current) {
         setIntroComplete(true);
       }
       return;
     }
 
-    // افکت شناوری دوربین با حرکت ماوس (Parallax Effect) بعد از اتمام انیمیشن
     const p = pointer.current ?? { x: 0, y: 0 };
     const tx = end.current.x + p.x * 0.4;
     const ty = end.current.y - p.y * 0.2;
@@ -130,6 +131,7 @@ function CameraRig({
 
   return null;
 }
+
 export default function HeroScene({
   isExploring = false,
 }: {
@@ -152,7 +154,7 @@ export default function HeroScene({
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: [8, 4, 8], fov: 45 }}
+      camera={{ position: [-1.44, -0.17, 0.46], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       fallback={<HeroSceneFallback />}
       onError={() => setWebGLAvailable(false)}
@@ -161,7 +163,6 @@ export default function HeroScene({
         gl.toneMapping = THREE.ACESFilmicToneMapping;
       }}
     >
-      {/* بگراند و نورپردازی اختصاصی مدل اتاق مدرن */}
       <Environment
         preset="apartment"
         environmentIntensity={1.2}
@@ -197,7 +198,7 @@ export default function HeroScene({
           maxPolarAngle={Math.PI / 2 - 0.05}
           minDistance={1}
           maxDistance={12}
-          target={[0, -0.1, 0]} // ست شده با lookTarget جدید
+          target={[-1.25, -0.1, 0]}
         />
       )}
     </Canvas>
