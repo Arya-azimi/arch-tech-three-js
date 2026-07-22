@@ -101,7 +101,10 @@ export default function CustomCursor() {
   if (reducedMotion) return null;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[9999]">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed z-[9999] h-4 w-4 rounded-full bg-white mix-blend-difference"
+    >
       <div
         ref={ringRef}
         className="fixed left-0 top-0 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white mix-blend-difference"
