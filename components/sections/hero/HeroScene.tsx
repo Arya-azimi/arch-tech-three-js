@@ -52,11 +52,11 @@ function easeInOutCubic(t: number) {
 }
 
 function CameraRig({
-  isCinematic,
   isExploring,
+  controlsRef,
 }: {
-  isCinematic: boolean;
   isExploring: boolean;
+  controlsRef: React.RefObject<any>;
 }) {
   const { camera } = useThree();
   const introComplete = useRoomStore((s) => s.introComplete);
@@ -70,6 +70,9 @@ function CameraRig({
   const start = useRef(new THREE.Vector3(0.01, -0.26, 1.88));
   const end = useRef(new THREE.Vector3(0.0, 0.0, 6.86));
   const lookTarget = useRef(new THREE.Vector3(0.0, 0.0, 0.0));
+
+  // این رفرنس زاویه لحظه‌ای دوربین را در هنگام چرخش ذخیره می‌کند
+  const currentTarget = useRef(new THREE.Vector3(0.0, 0.0, 0.0));
 
   const introCompleteRef = useRef(introComplete);
 
@@ -87,22 +90,25 @@ function CameraRig({
   }, [isLoaded]);
 
   useEffect(() => {
-    if (reducedMotion) {
+    if (reducedMotion && !isExploring) {
       camera.position.copy(end.current);
       camera.lookAt(lookTarget.current);
+      currentTarget.current.copy(lookTarget.current);
+      if (controlsRef.current) {
+        controlsRef.current.target.copy(lookTarget.current);
+      }
       setIntroComplete(true);
     }
-  }, [camera, reducedMotion, setIntroComplete]);
+  }, [camera, reducedMotion, setIntroComplete, isExploring, controlsRef]);
 
   useFrame((_, delta) => {
-    if (isExploring) return;
-
     if (!canAnimate) {
       camera.position.copy(start.current);
       camera.lookAt(lookTarget.current);
       return;
     }
 
+    // ۱. انیمیشن سینماتیک اولیه سایت
     if (progress.current < 1) {
       progress.current = Math.min(1, progress.current + delta / 2.6);
       const t = easeInOutCubic(progress.current);
@@ -110,13 +116,34 @@ function CameraRig({
       camera.lookAt(lookTarget.current);
       if (progress.current >= 1 && !introCompleteRef.current) {
         setIntroComplete(true);
+        currentTarget.current.copy(lookTarget.current);
       }
       return;
     }
 
-    // قفل ماندن دقیق روی موقعیت end
-    camera.position.copy(end.current);
-    camera.lookAt(lookTarget.current);
+    // ۲. در زمان جستجو، کنترل کاملا دست کاربر و OrbitControls است
+    if (isExploring) {
+      if (controlsRef.current) {
+        // موقعیت نگاه کردن کاربر رو همگام‌سازی می‌کنیم
+        currentTarget.current.copy(controlsRef.current.target);
+      }
+      return;
+    }
+
+    // ۳. پروازِ نرم و لطیف به جایگاه اول بعد از بستن ذره‌بین
+    if (!reducedMotion) {
+      // نرم رفتن دوربین به پوزیشن نهایی
+      camera.position.lerp(end.current, delta * 4);
+
+      // چرخش نرم کادر دوربین به مرکز
+      currentTarget.current.lerp(lookTarget.current, delta * 4);
+      camera.lookAt(currentTarget.current);
+
+      // همگام‌سازی OrbitControls تا از پرش‌های احتمالی بعدی جلوگیری بشه
+      if (controlsRef.current) {
+        controlsRef.current.target.copy(currentTarget.current);
+      }
+    }
   });
 
   return null;
@@ -127,21 +154,12 @@ export default function HeroScene({
 }: {
   isExploring?: boolean;
 }) {
-  const introComplete = useRoomStore((s) => s.introComplete);
-  const reducedMotion = useUIStore((s) => s.reducedMotion);
   const [webGLAvailable, setWebGLAvailable] = useState<boolean | null>(null);
   const controlsRef = useRef<any>(null);
 
   useEffect(() => {
     setWebGLAvailable(canCreateWebGLContext());
   }, []);
-
-  // همگام‌سازی کنترلر بدون ایجاد پرش زاویه
-  useEffect(() => {
-    if (controlsRef.current && isExploring) {
-      controlsRef.current.update();
-    }
-  }, [isExploring]);
 
   if (webGLAvailable === null)
     return <HeroSceneFallback completeIntro={false} />;
@@ -191,7 +209,8 @@ export default function HeroScene({
 
         <Room />
 
-        <CameraRig isCinematic={!isExploring} isExploring={isExploring} />
+        {/* اضافه کردن CameraRig که مدیریت پرواز نرم رو بر عهده داره */}
+        <CameraRig isExploring={isExploring} controlsRef={controlsRef} />
 
         <OrbitControls
           ref={controlsRef}
