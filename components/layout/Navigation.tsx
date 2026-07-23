@@ -30,18 +30,21 @@ export default function Navigation() {
   return (
     <header
       ref={headerRef}
-      className="fixed top-0 z-50 flex w-full items-center justify-between p-6 mix-blend-difference md:px-12 md:py-8 text-white"
+      className="pointer-events-none fixed top-0 z-[100] flex w-full items-center justify-between p-6 md:px-12 md:py-8"
     >
-      <div data-cursor="link" className="font-display text-xl tracking-tight">
+      <div
+        data-cursor="link"
+        className="pointer-events-auto mix-blend-difference font-display text-xl tracking-tight text-white"
+      >
         Arch Tech
       </div>
 
-      <div className="flex items-center gap-8">
+      <div className="pointer-events-auto flex items-center gap-8 mix-blend-difference text-white">
         {mounted && (
           <button
             onClick={toggleTheme}
             data-cursor="link"
-            className="font-mono text-[10px] uppercase tracking-widest opacity-70 transition-opacity hover:opacity-100"
+            className="cursor-pointer font-mono text-[10px] uppercase tracking-widest opacity-70 transition-opacity hover:opacity-100"
           >
             {theme === "dark" ? "Light" : "Dark"}
           </button>
@@ -49,7 +52,7 @@ export default function Navigation() {
 
         <button
           data-cursor="link"
-          className="group flex flex-col gap-[5px] p-2"
+          className="group flex cursor-pointer flex-col gap-[5px] p-2"
           aria-label="Menu"
         >
           <span className="h-px w-6 origin-right bg-white transition-transform duration-300 group-hover:scale-x-75" />
