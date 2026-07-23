@@ -203,7 +203,7 @@ export default function HeroScene({
           enablePan={isExploring}
           enableZoom={isExploring}
           minPolarAngle={0}
-          maxPolarAngle={Math.PI / 2 - 0.05}
+          maxPolarAngle={Math.PI / 2}
           minDistance={0.5}
           maxDistance={12}
           target={[0, 0, 0]}
