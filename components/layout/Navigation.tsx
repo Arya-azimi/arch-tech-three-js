@@ -5,9 +5,9 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { useUIStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/data";
+import MagneticButton from "@/components/interaction/MagneticButton";
 
 export default function Navigation() {
-  // برگرداندن لاجیک به استور Zustand برای سینک شدن با کل سایت
   const theme = useUIStore((s) => s.theme);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
   const menuOpen = useUIStore((s) => s.menuOpen);
@@ -21,7 +21,6 @@ export default function Navigation() {
   const linksRef = useRef<HTMLUListElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  // انیمیشن ورود هدر
   useEffect(() => {
     if (!isLoaded || reducedMotion || !headerRef.current) return;
     gsap.fromTo(
@@ -31,7 +30,6 @@ export default function Navigation() {
     );
   }, [isLoaded, reducedMotion]);
 
-  // ساخت تایم‌لاین باز و بسته شدن منو
   useEffect(() => {
     if (reducedMotion) return;
     const overlay = overlayRef.current;
@@ -68,7 +66,6 @@ export default function Navigation() {
     };
   }, [reducedMotion]);
 
-  // کنترل باز و بسته شدن منو با استیت
   useEffect(() => {
     if (reducedMotion || !tlRef.current) return;
     if (menuOpen) {
@@ -84,51 +81,58 @@ export default function Navigation() {
         ref={headerRef}
         className="pointer-events-none fixed inset-x-0 top-0 z-[9999] flex w-full items-center justify-between p-6 md:px-12 md:py-8"
       >
-        {/* حذف relative z-10 تا mix-blend-difference با بکگراند صفحه ترکیب شود */}
         <Link
           href="/"
           data-cursor="link"
           onClick={() => setMenuOpen(false)}
-          className="pointer-events-auto mix-blend-difference font-display text-xl tracking-tight text-white"
+          className={`pointer-events-auto font-display text-xl tracking-tight transition-colors duration-500 ${
+            theme === "light" ? "text-black" : "text-white"
+          }`}
         >
           Arch Tech
         </Link>
 
         <div className="flex items-center gap-8">
-          {/* استفاده از toggleTheme استور اصلی */}
-          <button
-            type="button"
+          <MagneticButton
             onClick={toggleTheme}
             data-cursor="link"
-            className="pointer-events-auto mix-blend-difference font-mono text-[10px] uppercase tracking-widest text-white opacity-70 transition-opacity hover:opacity-100"
+            className={`pointer-events-auto font-mono text-[10px] uppercase tracking-widest opacity-70 transition-all duration-500 hover:opacity-100 ${
+              theme === "light" ? "text-black" : "text-white"
+            }`}
           >
             {theme === "dark" ? "Light" : "Dark"}
-          </button>
+          </MagneticButton>
 
-          <button
-            type="button"
+          <MagneticButton
             onClick={toggleMenu}
             data-cursor="link"
-            className="pointer-events-auto mix-blend-difference group flex flex-col gap-[5px] p-2"
+            className="pointer-events-auto group flex flex-col gap-[5px] p-2"
             aria-label="Menu"
           >
-            <span className="h-px w-6 origin-right bg-white transition-transform duration-300 group-hover:scale-x-75" />
-            <span className="h-px w-6 origin-right bg-white transition-transform duration-300 delay-75 group-hover:scale-x-100" />
-          </button>
+            <span
+              className={`h-px w-6 origin-right transition-all duration-500 group-hover:scale-x-75 ${
+                theme === "light" ? "bg-black" : "bg-white"
+              }`}
+            />
+            <span
+              className={`h-px w-6 origin-right transition-all duration-500 delay-75 group-hover:scale-x-100 ${
+                theme === "light" ? "bg-black" : "bg-white"
+              }`}
+            />
+          </MagneticButton>
         </div>
       </header>
 
-      {/* لایه Overlay منو */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[9998] hidden bg-[var(--surface)]"
+        className="fixed inset-0 z-[9998] hidden bg-[var(--surface)] transition-colors duration-500"
         role="dialog"
         aria-modal="true"
         aria-hidden={!menuOpen}
       >
         <div className="grid h-full w-full grid-cols-1 lg:grid-cols-2">
           <div className="flex flex-col justify-center px-[var(--grid-margin)] py-24">
-            <span className="mb-8 text-xs uppercase tracking-[0.3em] text-[var(--text-secondary)]">
+            <span className="mb-8 text-xs uppercase tracking-[0.3em] text-[var(--text-secondary)] transition-colors duration-500">
               Menu
             </span>
             <ul ref={linksRef} className="space-y-2">
@@ -139,7 +143,7 @@ export default function Navigation() {
                     data-navlink
                     data-cursor="link"
                     onClick={() => setMenuOpen(false)}
-                    className="font-display text-h2 leading-none text-[var(--text-primary)] transition-colors hover:text-[var(--accent)]"
+                    className="font-display text-h2 leading-none text-[var(--text-primary)] transition-colors duration-500 hover:text-[var(--accent)]"
                   >
                     <span className="inline-block">{link.label}</span>
                   </Link>
@@ -157,7 +161,7 @@ export default function Navigation() {
             data-cursor="video"
             data-cursor-label="Showreel"
           >
-            <div className="absolute bottom-[var(--grid-margin)] left-[var(--grid-margin)] max-w-xs text-[var(--background)]">
+            <div className="absolute bottom-[var(--grid-margin)] left-[var(--grid-margin)] max-w-xs text-[var(--background)] transition-colors duration-500">
               <p className="text-body">
                 Architecture, interiors & collectible furniture. Selected works
                 2019—2025.
