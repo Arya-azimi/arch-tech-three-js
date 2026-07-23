@@ -1,3 +1,4 @@
+// components/layout/Navigation.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -23,28 +24,24 @@ export default function Navigation() {
     );
   }, [isLoaded, reducedMotion]);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   return (
     <header
       ref={headerRef}
-      className="pointer-events-none fixed top-0 z-[100] flex w-full items-center justify-between p-6 md:px-12 md:py-8"
+      className="fixed top-0 z-[9999] flex w-full items-center justify-between p-6 mix-blend-difference md:px-12 md:py-8"
     >
       <div
         data-cursor="link"
-        className="pointer-events-auto mix-blend-difference font-display text-xl tracking-tight text-white"
+        className="cursor-pointer font-display text-xl tracking-tight text-white"
       >
         Arch Tech
       </div>
 
-      <div className="pointer-events-auto flex items-center gap-8 mix-blend-difference text-white">
+      <div className="flex items-center gap-8">
         {mounted && (
           <button
-            onClick={toggleTheme}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             data-cursor="link"
-            className="cursor-pointer font-mono text-[10px] uppercase tracking-widest opacity-70 transition-opacity hover:opacity-100"
+            className="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-white opacity-70 transition-opacity hover:opacity-100"
           >
             {theme === "dark" ? "Light" : "Dark"}
           </button>
