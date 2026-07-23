@@ -65,15 +65,11 @@ function easeInOutCubic(t: number) {
 }
 
 function CameraRig({
-  pointer,
   isCinematic,
   isExploring,
-  controlsRef,
 }: {
-  pointer: React.RefObject<{ x: number; y: number }>;
   isCinematic: boolean;
   isExploring: boolean;
-  controlsRef: React.RefObject<any>;
 }) {
   const { camera } = useThree();
   const introComplete = useRoomStore((s) => s.introComplete);
@@ -87,10 +83,6 @@ function CameraRig({
   const start = useRef(new THREE.Vector3(0.01, -0.26, 1.88));
   const end = useRef(new THREE.Vector3(0.0, 0.0, 6.86));
   const lookTarget = useRef(new THREE.Vector3(0.0, 0.0, 0.0));
-
-  // ذخیره نقطه مبدا برای جلوگیری از پرش دوربین
-  const parallaxBase = useRef(new THREE.Vector3().copy(end.current));
-  const currentTarget = useRef(new THREE.Vector3().copy(lookTarget.current));
 
   const introCompleteRef = useRef(introComplete);
 
@@ -107,16 +99,6 @@ function CameraRig({
     }
   }, [isLoaded]);
 
-  // ثبت موقعیت دوربین لحظه‌ای که کاربر دکمه ذره‌بین رو می‌بنده
-  useEffect(() => {
-    if (!isExploring && introCompleteRef.current) {
-      parallaxBase.current.copy(camera.position);
-      if (controlsRef.current) {
-        currentTarget.current.copy(controlsRef.current.target);
-      }
-    }
-  }, [isExploring, camera]);
-
   useEffect(() => {
     if (reducedMotion) {
       camera.position.copy(end.current);
@@ -126,7 +108,7 @@ function CameraRig({
   }, [camera, reducedMotion, setIntroComplete]);
 
   useFrame((_, delta) => {
-    if (isExploring) return; // در حالت Explore کاری به دوربین نداریم
+    if (isExploring) return;
 
     if (!canAnimate) {
       camera.position.copy(start.current);
@@ -145,13 +127,9 @@ function CameraRig({
       return;
     }
 
-    // Parallax Effect بر اساس موقعیت ثبت شده (نه نقطه end پیش‌فرض)
-    const p = pointer.current ?? { x: 0, y: 0 };
-    const tx = parallaxBase.current.x + p.x * 0.4;
-    const ty = parallaxBase.current.y - p.y * 0.2;
-    camera.position.x += (tx - camera.position.x) * 0.04;
-    camera.position.y += (ty - camera.position.y) * 0.04;
-    camera.lookAt(currentTarget.current);
+    // قفل شدن کامل دوربین در نقطه دقیق end بعد از اتمام انیمیشن
+    camera.position.copy(end.current);
+    camera.lookAt(lookTarget.current);
   });
 
   return null;
@@ -220,12 +198,7 @@ export default function HeroScene({
 
         <Room />
 
-        <CameraRig
-          pointer={pointer}
-          isCinematic={!isExploring}
-          isExploring={isExploring}
-          controlsRef={controlsRef}
-        />
+        <CameraRig isCinematic={!isExploring} isExploring={isExploring} />
 
         <OrbitControls
           ref={controlsRef}
