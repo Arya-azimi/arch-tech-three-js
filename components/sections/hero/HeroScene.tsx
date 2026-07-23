@@ -47,19 +47,6 @@ function HeroSceneFallback({
   );
 }
 
-function useSharedPointer() {
-  const pointer = useRef({ x: 0, y: 0 });
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    window.addEventListener("pointermove", onMove);
-    return () => window.removeEventListener("pointermove", onMove);
-  }, []);
-  return pointer;
-}
-
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
@@ -127,7 +114,7 @@ function CameraRig({
       return;
     }
 
-    // قفل شدن کامل دوربین در نقطه دقیق end بعد از اتمام انیمیشن
+    // قفل ماندن دقیق روی موقعیت end
     camera.position.copy(end.current);
     camera.lookAt(lookTarget.current);
   });
@@ -140,7 +127,6 @@ export default function HeroScene({
 }: {
   isExploring?: boolean;
 }) {
-  const pointer = useSharedPointer();
   const introComplete = useRoomStore((s) => s.introComplete);
   const reducedMotion = useUIStore((s) => s.reducedMotion);
   const [webGLAvailable, setWebGLAvailable] = useState<boolean | null>(null);
@@ -149,6 +135,13 @@ export default function HeroScene({
   useEffect(() => {
     setWebGLAvailable(canCreateWebGLContext());
   }, []);
+
+  // همگام‌سازی کنترلر بدون ایجاد پرش زاویه
+  useEffect(() => {
+    if (controlsRef.current && isExploring) {
+      controlsRef.current.update();
+    }
+  }, [isExploring]);
 
   if (webGLAvailable === null)
     return <HeroSceneFallback completeIntro={false} />;
