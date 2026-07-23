@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
-import { useTheme } from "next-themes";
 import { useUIStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/data";
 
 export default function Navigation() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
+  // برگرداندن لاجیک به استور Zustand برای سینک شدن با کل سایت
+  const theme = useUIStore((s) => s.theme);
+  const toggleTheme = useUIStore((s) => s.toggleTheme);
   const menuOpen = useUIStore((s) => s.menuOpen);
   const toggleMenu = useUIStore((s) => s.toggleMenu);
   const setMenuOpen = useUIStore((s) => s.setMenuOpen);
@@ -22,8 +21,7 @@ export default function Navigation() {
   const linksRef = useRef<HTMLUListElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  useEffect(() => setMounted(true), []);
-
+  // انیمیشن ورود هدر
   useEffect(() => {
     if (!isLoaded || reducedMotion || !headerRef.current) return;
     gsap.fromTo(
@@ -33,6 +31,7 @@ export default function Navigation() {
     );
   }, [isLoaded, reducedMotion]);
 
+  // ساخت تایم‌لاین باز و بسته شدن منو
   useEffect(() => {
     if (reducedMotion) return;
     const overlay = overlayRef.current;
@@ -69,6 +68,7 @@ export default function Navigation() {
     };
   }, [reducedMotion]);
 
+  // کنترل باز و بسته شدن منو با استیت
   useEffect(() => {
     if (reducedMotion || !tlRef.current) return;
     if (menuOpen) {
@@ -84,32 +84,32 @@ export default function Navigation() {
         ref={headerRef}
         className="pointer-events-none fixed inset-x-0 top-0 z-[9999] flex w-full items-center justify-between p-6 md:px-12 md:py-8"
       >
+        {/* حذف relative z-10 تا mix-blend-difference با بکگراند صفحه ترکیب شود */}
         <Link
           href="/"
           data-cursor="link"
           onClick={() => setMenuOpen(false)}
-          className="pointer-events-auto mix-blend-difference font-display text-xl tracking-tight text-white relative z-10"
+          className="pointer-events-auto mix-blend-difference font-display text-xl tracking-tight text-white"
         >
           Arch Tech
         </Link>
 
         <div className="flex items-center gap-8">
-          {mounted && (
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              data-cursor="link"
-              className="pointer-events-auto mix-blend-difference font-mono text-[10px] uppercase tracking-widest text-white opacity-70 transition-opacity hover:opacity-100 relative z-10"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-          )}
+          {/* استفاده از toggleTheme استور اصلی */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            data-cursor="link"
+            className="pointer-events-auto mix-blend-difference font-mono text-[10px] uppercase tracking-widest text-white opacity-70 transition-opacity hover:opacity-100"
+          >
+            {theme === "dark" ? "Light" : "Dark"}
+          </button>
 
           <button
             type="button"
             onClick={toggleMenu}
             data-cursor="link"
-            className="pointer-events-auto mix-blend-difference group flex flex-col gap-[5px] p-2 relative z-10"
+            className="pointer-events-auto mix-blend-difference group flex flex-col gap-[5px] p-2"
             aria-label="Menu"
           >
             <span className="h-px w-6 origin-right bg-white transition-transform duration-300 group-hover:scale-x-75" />
@@ -118,6 +118,7 @@ export default function Navigation() {
         </div>
       </header>
 
+      {/* لایه Overlay منو */}
       <div
         ref={overlayRef}
         className="fixed inset-0 z-[9998] hidden bg-[var(--surface)]"
