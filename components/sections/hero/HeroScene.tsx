@@ -209,7 +209,6 @@ export default function HeroScene({
 
         <Room />
 
-        {/* اضافه کردن CameraRig که مدیریت پرواز نرم رو بر عهده داره */}
         <CameraRig isExploring={isExploring} controlsRef={controlsRef} />
 
         <OrbitControls
