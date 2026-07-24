@@ -55,7 +55,6 @@ export default function Process() {
       return;
 
     const ctx = gsap.context(() => {
-      // انیمیشن خط عمودی و مراحل
       const steps = gsap.utils.toArray<HTMLElement>(".step-item");
 
       gsap.fromTo(
@@ -91,7 +90,6 @@ export default function Process() {
         );
       });
 
-      // انیمیشن پارالاکس نرم برای تایتل سمت چپ (فقط در حالت دسکتاپ)
       const mm = gsap.matchMedia();
       mm.add("(min-width: 768px)", () => {
         gsap.to(titleRef.current, {
@@ -102,7 +100,7 @@ export default function Process() {
             trigger: rightColRef.current,
             start: "top 30%",
             end: "bottom 85%",
-            scrub: 1.5, // تاخیر نرم و حس شناور بودن (Parallax Lag)
+            scrub: 1.5,
             invalidateOnRefresh: true,
           },
         });
@@ -147,10 +145,9 @@ export default function Process() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-24 px-6 py-32 md:flex-row md:px-12 md:py-48">
-        {/* Left Side: Parallax Title */}
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-24 px-6 py-32 pt-[20vh] md:flex-row md:px-12 md:py-48">
         <div className="shrink-0 md:w-5/12">
-          <div ref={titleRef} className="pt-[10vh]">
+          <div ref={titleRef} className="pt-[5vh] md:pt-[10vh]">
             <h2
               className={`font-serif text-5xl uppercase leading-[1.05] tracking-tighter md:text-7xl lg:text-8xl ${textColor}`}
             >
@@ -163,7 +160,6 @@ export default function Process() {
           </div>
         </div>
 
-        {/* Right Side: Steps Container */}
         <div
           ref={rightColRef}
           className="relative flex flex-col gap-16 md:w-7/12 md:gap-32"

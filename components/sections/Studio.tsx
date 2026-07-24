@@ -26,11 +26,22 @@ export default function Studio() {
       return;
 
     const ctx = gsap.context(() => {
+      const processEl = document.getElementById("process");
+
+      if (processEl) {
+        gsap.set(processEl, {
+          marginTop: "-100vh",
+          xPercent: 100,
+          position: "relative",
+          zIndex: 0,
+        });
+      }
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pinContainerRef.current,
           start: "center center",
-          end: "+=200%",
+          end: "+=100%",
           pin: true,
           scrub: 1,
         },
@@ -42,35 +53,49 @@ export default function Studio() {
         borderRadius: "0px",
         ease: "power2.inOut",
         duration: 1.5,
-      })
-        .fromTo(
-          textRef.current,
-          { left: "100%", xPercent: 0 },
+      }).fromTo(
+        textRef.current,
+        { left: "100%", xPercent: 0 },
+        {
+          left: "0%",
+          xPercent: -100,
+          ease: "none",
+          duration: 3,
+        },
+        "-=0.5",
+      );
+
+      tl.to(
+        imageWrapperRef.current,
+        {
+          xPercent: -100,
+          ease: "power1.inOut",
+          duration: 5,
+        },
+        "+=0.2",
+      );
+
+      if (processEl) {
+        tl.to(
+          processEl,
           {
-            left: "0%",
-            xPercent: -100,
-            ease: "none",
-            duration: 3,
-          },
-          "-=0.5",
-        )
-        .to(
-          imageWrapperRef.current,
-          {
-            xPercent: -100,
+            xPercent: 0,
             ease: "power1.inOut",
             duration: 5,
           },
-          "+=0.2",
+          "<",
         );
+      }
     }, pinContainerRef);
 
     return () => ctx.revert();
   }, [reducedMotion]);
 
   return (
-    <section id="studio" className="relative bg-[var(--background)] pt-[12vh]">
-      <div className="grid-shell items-start">
+    <section id="studio" className="relative pt-[12vh] z-10">
+      <div className="absolute top-0 left-0 w-full h-[calc(100%-100vh)] bg-[var(--background)] z-0" />
+
+      <div className="grid-shell items-start relative z-10">
         <div className="col-span-full lg:col-span-4">
           <span className="font-display block text-[clamp(6rem,18vw,16rem)] leading-none text-[var(--accent)]">
             01
@@ -97,18 +122,18 @@ export default function Studio() {
 
       <div
         ref={pinContainerRef}
-        className="mt-[10vh] flex h-screen w-full items-center justify-center overflow-hidden relative"
+        className="mt-[10vh] flex h-screen w-full items-center justify-center overflow-hidden relative z-10"
       >
         <div
           ref={imageWrapperRef}
-          className="relative flex h-[70vh] w-[90vw] items-center justify-center overflow-hidden rounded-2xl will-change-transform"
+          className="relative flex h-[70vh] w-[90vw] items-center justify-center overflow-hidden rounded-2xl will-change-transform z-20"
           style={{
             background:
               "linear-gradient(135deg, var(--accent), var(--text-primary))",
           }}
         />
 
-        <div className="absolute inset-0 z-10 flex items-center overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 z-30 flex items-center overflow-hidden pointer-events-none">
           <p
             ref={textRef}
             className="absolute whitespace-nowrap font-display text-[clamp(2rem,5vw,5rem)] text-white mix-blend-difference will-change-transform"
