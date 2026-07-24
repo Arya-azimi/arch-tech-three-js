@@ -1,17 +1,76 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import TextReveal from "@/components/interaction/TextReveal";
-import ParallaxImage from "@/components/sections/ParallaxImage";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useUIStore } from "@/lib/store";
 
-/**
- * Editorial "Studio" section — brutalist offset grid with oversized numerals
- * (normalisboring inspiration) and a parallax image reveal.
- */
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export default function Studio() {
+  const pinContainerRef = useRef<HTMLDivElement>(null);
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const reducedMotion = useUIStore((s) => s.reducedMotion);
+
+  useEffect(() => {
+    if (
+      reducedMotion ||
+      !pinContainerRef.current ||
+      !imageWrapperRef.current ||
+      !textRef.current
+    )
+      return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pinContainerRef.current,
+          start: "center center",
+          end: "+=200%",
+          pin: true,
+          scrub: 1,
+        },
+      });
+
+      tl.to(imageWrapperRef.current, {
+        width: "100vw",
+        height: "100vh",
+        borderRadius: "0px",
+        ease: "power2.inOut",
+        duration: 1.5,
+      })
+        .fromTo(
+          textRef.current,
+          { left: "100%", xPercent: 0 },
+          {
+            left: "0%",
+            xPercent: -100,
+            ease: "none",
+            duration: 3,
+          },
+          "-=0.5",
+        )
+        .to(
+          imageWrapperRef.current,
+          {
+            xPercent: -100,
+            ease: "power1.inOut",
+            duration: 5,
+          },
+          "+=0.2",
+        );
+    }, pinContainerRef);
+
+    return () => ctx.revert();
+  }, [reducedMotion]);
+
   return (
-    <section id="studio" className="relative bg-[var(--background)] py-[12vh]">
+    <section id="studio" className="relative bg-[var(--background)] pt-[12vh]">
       <div className="grid-shell items-start">
-        {/* Oversized structural numeral */}
         <div className="col-span-full lg:col-span-4">
           <span className="font-display block text-[clamp(6rem,18vw,16rem)] leading-none text-[var(--accent)]">
             01
@@ -21,7 +80,6 @@ export default function Studio() {
           </span>
         </div>
 
-        {/* Offset text block */}
         <div className="col-span-full mt-8 lg:col-span-5 lg:col-start-6 lg:mt-24">
           <TextReveal
             as="h2"
@@ -37,19 +95,24 @@ export default function Studio() {
         </div>
       </div>
 
-      {/* Full-width parallax reveal */}
-      <div className="mt-[10vh] px-[var(--grid-margin)]">
-        <ParallaxImage
-          label="View"
-          className="h-[70vh] w-full rounded-2xl"
-          background="linear-gradient(135deg, var(--accent), var(--text-primary))"
+      <div
+        ref={pinContainerRef}
+        className="mt-[10vh] flex h-screen w-full items-center justify-center overflow-hidden relative"
+      >
+        <div
+          ref={imageWrapperRef}
+          className="relative flex h-[70vh] w-[90vw] items-center justify-center overflow-hidden rounded-2xl will-change-transform"
+          style={{
+            background:
+              "linear-gradient(135deg, var(--accent), var(--text-primary))",
+          }}
         />
-      </div>
 
-      {/* Offset caption */}
-      <div className="grid-shell mt-8">
-        <div className="col-span-full lg:col-span-4 lg:col-start-9">
-          <p className="text-body text-[var(--text-secondary)]">
+        <div className="absolute inset-0 z-10 flex items-center overflow-hidden pointer-events-none">
+          <p
+            ref={textRef}
+            className="absolute whitespace-nowrap font-display text-[clamp(2rem,5vw,5rem)] text-white mix-blend-difference will-change-transform"
+          >
             Monolith House, Engadin — 620 m² of board-formed concrete carved
             into an alpine slope.
           </p>

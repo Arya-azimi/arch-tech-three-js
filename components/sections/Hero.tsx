@@ -1,4 +1,3 @@
-// components/sections/Hero.tsx
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
@@ -28,7 +27,6 @@ export default function Hero() {
 
   const handleToggleExplore = () => {
     if (!isExploring) {
-      // اسکرول نرم استاندارد مرورگر به بالای صفحه
       window.scrollTo({
         top: 0,
         behavior: "smooth",
@@ -54,9 +52,18 @@ export default function Hero() {
       document.body.style.overflow = "";
     };
   }, [isExploring, stop, start]);
+  const theme = useUIStore((s) => s.theme);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-neutral-200">
+    <section
+      className="relative h-screen w-full overflow-hidden transition-all duration-700"
+      style={{
+        background:
+          theme === "light"
+            ? "radial-gradient(circle at center, #e5e5e5 0%, #e5e5e5 40%, #d4d4d4 100%)"
+            : "radial-gradient(circle at center, #3f3f46 0%, #2d2d32 60%, #27272a 100%)",
+      }}
+    >
       <div className="absolute inset-0 h-full w-full">
         <Suspense fallback={<SceneLoader />}>
           <HeroScene isExploring={isExploring} />
@@ -64,7 +71,7 @@ export default function Hero() {
       </div>
 
       <div
-        className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-1000 mix-blend-difference ${
+        className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center mix-blend-difference transition-opacity duration-1000 ${
           introComplete && !isExploring ? "opacity-100" : "opacity-0"
         }`}
       >
