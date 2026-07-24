@@ -106,19 +106,23 @@ export default function Navigation() {
           <MagneticButton
             onClick={toggleMenu}
             data-cursor="link"
-            className="pointer-events-auto group flex flex-col gap-[5px] p-2"
+            className="pointer-events-auto group p-2"
             aria-label="Menu"
           >
-            <span
-              className={`h-px w-6 origin-right transition-all duration-500 group-hover:scale-x-75 ${
-                theme === "light" ? "bg-black" : "bg-white"
+            <div
+              className={`grid grid-cols-2 gap-1.5 transition-transform duration-500 ease-out ${
+                menuOpen ? "rotate-90" : "rotate-0 group-hover:scale-110"
               }`}
-            />
-            <span
-              className={`h-px w-6 origin-right transition-all duration-500 delay-75 group-hover:scale-x-100 ${
-                theme === "light" ? "bg-black" : "bg-white"
-              }`}
-            />
+            >
+              {[...Array(4)].map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1 w-1 rounded-full transition-all duration-500 ${
+                    theme === "light" ? "bg-black" : "bg-white"
+                  } ${menuOpen ? "scale-90" : "group-hover:scale-125"}`}
+                />
+              ))}
+            </div>
           </MagneticButton>
         </div>
       </header>
@@ -163,8 +167,7 @@ export default function Navigation() {
           >
             <div className="absolute bottom-[var(--grid-margin)] left-[var(--grid-margin)] max-w-xs text-[var(--background)] transition-colors duration-500">
               <p className="text-body">
-                Architecture, interiors & collectible furniture. Selected works
-                2019—2025.
+                Architecture, interiors & collectible furniture.
               </p>
             </div>
           </div>
