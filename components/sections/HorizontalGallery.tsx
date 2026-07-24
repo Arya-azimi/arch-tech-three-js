@@ -111,7 +111,7 @@ export default function HorizontalGallery() {
           {PROJECTS.map((project, index) => (
             <div
               key={project.id}
-              className="group relative h-[65vh] w-[80vw] shrink-0 overflow-hidden transition-transform duration-700 ease-out hover:scale-[0.98] md:h-[75vh] md:w-[22vw]"
+              className="rounded-2xl group relative h-[65vh] w-[80vw] shrink-0 overflow-hidden transition-transform duration-700 ease-out hover:scale-[0.98] md:h-[75vh] md:w-[22vw]"
               style={{ backgroundColor: project.color }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
