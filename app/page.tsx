@@ -3,6 +3,7 @@ import HorizontalGallery from "@/components/sections/HorizontalGallery";
 import Studio from "@/components/sections/Studio";
 import Footer from "@/components/layout/Footer";
 import Process from "@/components/sections/Process";
+import EstimateRequest from "@/components/sections/EstimateRequest";
 
 /**
  * Arch Tech homepage — composes the award-style sections in scroll order:
@@ -11,12 +12,13 @@ import Process from "@/components/sections/Process";
  */
 export default function Home() {
   return (
-    <main>
+    <>
       <Hero />
+      <EstimateRequest />
       <HorizontalGallery />
-      <Process />
       <Studio />
+      <Process />
       <Footer />
-    </main>
+    </>
   );
 }
